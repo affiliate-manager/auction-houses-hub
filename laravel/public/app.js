@@ -499,7 +499,9 @@ function buildModalRecentResults(h) {
         dateStr = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
       }
       const beds = r.beds ? `${r.beds} bed` : '';
+      const imgHtml = r.image ? `<img src="${r.image}" alt="" class="msold-img" loading="lazy" onerror="this.style.display='none'">` : '';
       return `<div class="msold-card">
+        ${imgHtml}
         <div class="msold-diff ${diffClass}">${diffStr}</div>
         <div class="msold-body">
           <div class="msold-address">${r.address}</div>
@@ -1713,10 +1715,10 @@ function loadFallbackLots() {
       type: (r.type || 'Residential').toLowerCase(),
       guidePrice: r.guidePrice,
       auctionDate: r.date || null,
-      imageUrl: null,
+      imageUrl: r.image || null,
       externalUrl: null,
       houseId: r.houseId || 0,
-      bedrooms: null,
+      bedrooms: r.beds || null,
       condition: null
     }));
     const notice = document.querySelector('.ll-fallback-notice');
