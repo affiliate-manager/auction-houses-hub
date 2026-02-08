@@ -2238,6 +2238,373 @@ select { font-family: inherit; }
   }
 }
 
+/* ===========================
+   Card Countdown Timer
+   =========================== */
+.card-countdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: var(--primary-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.85);
+}
+.card-countdown svg { color: var(--accent); flex-shrink: 0; }
+.card-countdown .countdown-text { flex: 1; }
+.card-countdown .countdown-type {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.card-countdown .countdown-type.room { background: rgba(46,204,113,0.15); color: #2ecc71; }
+.card-countdown .countdown-type.online { background: rgba(52,152,219,0.15); color: #3498db; }
+.card-countdown .countdown-type.hybrid { background: rgba(139,92,246,0.15); color: #8B5CF6; }
+.card-countdown-urgent { background: var(--danger); }
+.card-countdown-urgent svg { color: var(--white); }
+.card-countdown-none {
+  background: var(--bg);
+  color: var(--text-light);
+}
+.card-countdown-none svg { color: var(--text-light); }
+
+/* ===========================
+   Weekly Digest Widget
+   =========================== */
+.weekly-digest {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+.digest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.digest-header:hover { background: var(--bg); }
+.digest-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.digest-title svg { color: var(--accent); }
+.digest-chevron {
+  color: var(--text-light);
+  transition: transform 0.3s;
+}
+.weekly-digest.open .digest-chevron { transform: rotate(180deg); }
+.digest-body {
+  display: none;
+  padding: 0 24px 16px;
+}
+.weekly-digest.open .digest-body { display: block; }
+.digest-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.digest-stat {
+  text-align: center;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+.digest-stat-value {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.digest-stat-value.positive { color: var(--success); }
+.digest-stat-value.negative { color: var(--danger); }
+.digest-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  margin-top: 2px;
+  display: block;
+}
+.digest-stat-detail {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+.digest-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+.digest-top-region {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+@media (max-width: 768px) {
+  .digest-stats { grid-template-columns: repeat(2, 1fr); }
+  .digest-footer { flex-direction: column; text-align: center; }
+}
+
+/* ===========================
+   UK Price Map
+   =========================== */
+.map-section {
+  padding: 60px 0;
+  background: var(--bg);
+}
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+.map-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  grid-template-areas:
+    "scot scot ."
+    "nw ne ."
+    "wales yorks emid"
+    "wales wmid ea"
+    "sw london se";
+}
+.map-cell {
+  padding: 16px 12px;
+  border-radius: var(--radius);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 60px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+}
+.map-cell:hover { transform: scale(1.04); box-shadow: var(--shadow-md); z-index: 2; position: relative; }
+.map-cell.selected { border-color: var(--primary-dark); box-shadow: var(--shadow-md); transform: scale(1.04); position: relative; z-index: 2; }
+.map-cell[data-map-region="Scotland"] { grid-area: scot; }
+.map-cell[data-map-region="North West"] { grid-area: nw; }
+.map-cell[data-map-region="North East"] { grid-area: ne; }
+.map-cell[data-map-region="Yorkshire"] { grid-area: yorks; }
+.map-cell[data-map-region="Wales"] { grid-area: wales; }
+.map-cell[data-map-region="West Midlands"] { grid-area: wmid; }
+.map-cell[data-map-region="East Midlands"] { grid-area: emid; }
+.map-cell[data-map-region="East Anglia"] { grid-area: ea; }
+.map-cell[data-map-region="South West"] { grid-area: sw; }
+.map-cell[data-map-region="London"] { grid-area: london; }
+.map-cell[data-map-region="South East"] { grid-area: se; }
+.map-cell-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.map-cell-price {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.map-details-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  min-height: 300px;
+}
+.map-panel-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 200px;
+  color: var(--text-light);
+  text-align: center;
+}
+.map-panel-placeholder p { font-size: 0.9rem; }
+.map-panel-title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 16px;
+}
+.map-panel-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.map-panel-stat {
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.map-panel-stat-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+.map-panel-stat-value {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.map-panel-stat-value.positive { color: var(--success); }
+.map-panel-stat-value.negative { color: var(--danger); }
+.map-panel-actions {
+  display: flex;
+  gap: 8px;
+}
+.map-panel-actions .btn { flex: 1; justify-content: center; font-size: 0.82rem; }
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: center;
+}
+.map-legend-label {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  font-weight: 600;
+}
+.map-legend-bar {
+  width: 120px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #10B981, #C9973F, #EF4444);
+}
+@media (max-width: 768px) {
+  .map-layout { grid-template-columns: 1fr; }
+  .map-grid-container { max-width: 400px; margin: 0 auto; }
+}
+
+/* ===========================
+   Finance Tooltip
+   =========================== */
+.finance-tooltip {
+  position: absolute;
+  z-index: 1100;
+  width: 300px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px) scale(0.97);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.finance-tooltip.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0) scale(1);
+}
+.ft-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--primary-dark);
+}
+.ft-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: 1rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+}
+.ft-close:hover { background: var(--border); color: var(--text); }
+.ft-rows { padding: 12px 16px; }
+.ft-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.ft-row span:last-child {
+  font-weight: 600;
+  color: var(--text);
+}
+.ft-row.ft-total {
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+  color: var(--primary);
+}
+.ft-row.ft-total span:last-child { color: var(--primary); font-size: 0.92rem; }
+.ft-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 6px 0;
+}
+.ft-cta {
+  display: flex;
+  margin: 0 16px 12px;
+  justify-content: center;
+  width: calc(100% - 32px);
+}
+.ft-note {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-light);
+  padding: 0 16px 12px;
+}
+.finance-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.finance-icon-btn:hover {
+  background: var(--accent);
+  color: var(--white);
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+.finance-icon-sm {
+  width: 26px;
+  height: 26px;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }

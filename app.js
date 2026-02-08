@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initGuides();
   // Auction results
   initResults();
+  // Weekly digest
+  initWeeklyDigest();
+  // Price map
+  initPriceMap();
+  // Finance tooltip
+  initFinanceTooltip();
 });
 
 // ===========================
@@ -237,6 +243,9 @@ function renderCards(houses) {
   resultsGrid.querySelectorAll('.card-visit-btn').forEach(btn => {
     btn.addEventListener('click', (e) => e.stopPropagation());
   });
+
+  // Start/restart countdown timers on cards
+  startCountdownTimers();
 }
 
 function createCardHTML(h) {
@@ -276,6 +285,7 @@ function createCardHTML(h) {
         ${h.niches.map(n => `<span class="tag tag-niche">${n}</span>`).join('')}
       </div>` : ''}
     </div>
+    ${buildCardCountdown(h)}
     <div class="card-stats">
       <div class="card-stat">
         <span class="card-stat-label">Success Rate</span>
@@ -407,10 +417,11 @@ function buildModalRecentResults(h) {
         <td>&pound;${r.guidePrice.toLocaleString()}</td>
         <td><strong>&pound;${r.salePrice.toLocaleString()}</strong></td>
         <td class="${diffClass}">${diffStr}</td>
+        <td><button class="finance-icon-btn finance-icon-sm" onclick="event.stopPropagation();showFinanceTooltip(this,${r.salePrice})" title="View finance estimate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></button></td>
       </tr>`;
     }).join('');
     bodyContent = `<table class="modal-events-table">
-      <thead><tr><th>Address</th><th>Type</th><th>Guide</th><th>Sold</th><th>+/-</th></tr></thead>
+      <thead><tr><th>Address</th><th>Type</th><th>Guide</th><th>Sold</th><th>+/-</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
   }
@@ -1079,6 +1090,9 @@ function renderResults() {
           <span>${r.type}</span>
         </div>
       </div>
+      <button class="finance-icon-btn" onclick="event.stopPropagation();showFinanceTooltip(this,${r.salePrice})" title="View finance estimate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </button>
     </div>`;
   }).join('');
 }
@@ -1243,4 +1257,378 @@ function renderWatchlist() {
       toggleWatchlist(parseInt(btn.dataset.wlRemove));
     });
   });
+}
+
+// ===========================
+// Countdown Timers
+// ===========================
+function getNextAuctionForHouse(houseId, houseName) {
+  if (typeof AUCTION_EVENTS === 'undefined') return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const upcoming = AUCTION_EVENTS
+    .filter(e => (e.houseId === houseId || e.house === houseName) && new Date(e.date + 'T00:00:00') >= now)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+  return upcoming.length > 0 ? upcoming[0] : null;
+}
+
+function buildCardCountdown(h) {
+  const nextEvent = getNextAuctionForHouse(h.id, h.name);
+  if (!nextEvent) {
+    return `<div class="card-countdown card-countdown-none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span class="countdown-text">Check website for dates</span>
+    </div>`;
+  }
+  const targetISO = nextEvent.date + 'T' + (nextEvent.time || '10:00') + ':00';
+  return `<div class="card-countdown" data-countdown-target="${targetISO}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span class="countdown-text">Loading...</span>
+    <span class="countdown-type ${nextEvent.type.toLowerCase()}">${nextEvent.type}</span>
+  </div>`;
+}
+
+let countdownInterval = null;
+function startCountdownTimers() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  function updateAll() {
+    const now = new Date();
+    document.querySelectorAll('[data-countdown-target]').forEach(el => {
+      const target = new Date(el.dataset.countdownTarget);
+      const diff = target - now;
+      const textEl = el.querySelector('.countdown-text');
+      if (!textEl) return;
+      if (diff <= 0) {
+        textEl.textContent = 'Auction today!';
+        el.classList.add('card-countdown-urgent');
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      if (days > 0) {
+        textEl.textContent = `Next auction in ${days}d ${hours}h`;
+      } else {
+        textEl.textContent = `Next auction in ${hours}h ${mins}m`;
+      }
+      if (diff < 48 * 60 * 60 * 1000) {
+        el.classList.add('card-countdown-urgent');
+      } else {
+        el.classList.remove('card-countdown-urgent');
+      }
+    });
+  }
+  updateAll();
+  countdownInterval = setInterval(updateAll, 60000);
+}
+
+// ===========================
+// Weekly Digest Widget
+// ===========================
+function initWeeklyDigest() {
+  const container = document.getElementById('weeklyDigest');
+  if (!container) return;
+
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() + mondayOffset);
+  weekStart.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  weekEnd.setHours(23, 59, 59, 999);
+
+  const nextWeekStart = new Date(weekEnd);
+  nextWeekStart.setDate(nextWeekStart.getDate() + 1);
+  const nextWeekEnd = new Date(nextWeekStart);
+  nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+
+  let thisWeekEvents = 0, thisWeekRoom = 0, thisWeekOnline = 0;
+  let nextWeekEvents = 0;
+  const regionCounts = {};
+
+  if (typeof AUCTION_EVENTS !== 'undefined') {
+    AUCTION_EVENTS.forEach(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      if (d >= weekStart && d <= weekEnd) {
+        thisWeekEvents++;
+        if (e.type === 'Room') thisWeekRoom++;
+        else thisWeekOnline++;
+        regionCounts[e.region] = (regionCounts[e.region] || 0) + 1;
+      }
+      if (d >= nextWeekStart && d <= nextWeekEnd) nextWeekEvents++;
+    });
+  }
+
+  let lotsSold = 0, avgSalePrice = 0, avgPremium = 0;
+  if (typeof AUCTION_RESULTS !== 'undefined' && AUCTION_RESULTS.length > 0) {
+    lotsSold = AUCTION_RESULTS.length;
+    avgSalePrice = Math.round(AUCTION_RESULTS.reduce((s, r) => s + r.salePrice, 0) / lotsSold);
+    avgPremium = AUCTION_RESULTS.reduce((s, r) => s + ((r.salePrice - r.guidePrice) / r.guidePrice) * 100, 0) / lotsSold;
+  }
+
+  const topRegion = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0];
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekLabel = `${weekStart.getDate()} ${monthNames[weekStart.getMonth()]} - ${weekEnd.getDate()} ${monthNames[weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
+
+  const isCollapsed = localStorage.getItem('digestCollapsed') === 'true';
+  container.className = 'weekly-digest' + (isCollapsed ? '' : ' open');
+  container.innerHTML = `
+    <div class="digest-header" id="digestToggle">
+      <div class="digest-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        <span>Week of ${weekLabel}</span>
+      </div>
+      <svg class="digest-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="digest-body">
+      <div class="digest-stats">
+        <div class="digest-stat">
+          <span class="digest-stat-value">${thisWeekEvents}</span>
+          <span class="digest-stat-label">Auctions This Week</span>
+          <span class="digest-stat-detail">${thisWeekRoom} Room / ${thisWeekOnline} Online</span>
+        </div>
+        <div class="digest-stat">
+          <span class="digest-stat-value">${nextWeekEvents}</span>
+          <span class="digest-stat-label">Next Week</span>
+        </div>
+        <div class="digest-stat">
+          <span class="digest-stat-value">&pound;${avgSalePrice.toLocaleString()}</span>
+          <span class="digest-stat-label">Avg. Sale Price</span>
+          <span class="digest-stat-detail">${lotsSold} lots tracked</span>
+        </div>
+        <div class="digest-stat">
+          <span class="digest-stat-value ${avgPremium >= 0 ? 'positive' : 'negative'}">${avgPremium >= 0 ? '+' : ''}${avgPremium.toFixed(1)}%</span>
+          <span class="digest-stat-label">Avg. Premium to Guide</span>
+        </div>
+      </div>
+      <div class="digest-footer">
+        ${topRegion ? `<span class="digest-top-region">Top Region: <strong>${topRegion[0]}</strong> (${topRegion[1]} events)</span>` : '<span></span>'}
+        <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+          Secure Finance Before the Auction
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('digestToggle').addEventListener('click', () => {
+    container.classList.toggle('open');
+    localStorage.setItem('digestCollapsed', !container.classList.contains('open'));
+  });
+}
+
+// ===========================
+// UK Price Map
+// ===========================
+function initPriceMap() {
+  const container = document.getElementById('priceMapGrid');
+  const panel = document.getElementById('mapDetailsPanel');
+  if (!container || !panel) return;
+
+  const regions = ['Scotland', 'North East', 'North West', 'Yorkshire', 'Wales', 'West Midlands', 'East Midlands', 'East Anglia', 'South West', 'London', 'South East'];
+  const regionStats = {};
+  regions.forEach(r => {
+    regionStats[r] = { name: r, avgGuide: 0, avgSale: 0, count: 0, avgPremium: 0, events: 0 };
+  });
+
+  if (typeof AUCTION_RESULTS !== 'undefined') {
+    AUCTION_RESULTS.forEach(r => {
+      if (regionStats[r.region]) {
+        regionStats[r.region].count++;
+        regionStats[r.region].avgGuide += r.guidePrice;
+        regionStats[r.region].avgSale += r.salePrice;
+      }
+    });
+  }
+
+  if (typeof AUCTION_EVENTS !== 'undefined') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    AUCTION_EVENTS.forEach(e => {
+      if (regionStats[e.region] && new Date(e.date + 'T00:00:00') >= today) {
+        regionStats[e.region].events++;
+      }
+    });
+  }
+
+  let minAvg = Infinity, maxAvg = 0;
+  regions.forEach(r => {
+    const s = regionStats[r];
+    if (s.count > 0) {
+      s.avgGuide = Math.round(s.avgGuide / s.count);
+      s.avgSale = Math.round(s.avgSale / s.count);
+      s.avgPremium = ((s.avgSale - s.avgGuide) / s.avgGuide) * 100;
+      if (s.avgGuide < minAvg) minAvg = s.avgGuide;
+      if (s.avgGuide > maxAvg) maxAvg = s.avgGuide;
+    }
+  });
+
+  function getColor(avgGuide) {
+    if (avgGuide === 0) return '#C5CDD8';
+    const range = maxAvg - minAvg || 1;
+    const ratio = (avgGuide - minAvg) / range;
+    if (ratio < 0.5) {
+      const t = ratio * 2;
+      const r = Math.round(16 + t * (201 - 16));
+      const g = Math.round(185 + t * (151 - 185));
+      const b = Math.round(129 + t * (63 - 129));
+      return `rgb(${r},${g},${b})`;
+    } else {
+      const t = (ratio - 0.5) * 2;
+      const r = Math.round(201 + t * (239 - 201));
+      const g = Math.round(151 + t * (68 - 151));
+      const b = Math.round(63 + t * (68 - 63));
+      return `rgb(${r},${g},${b})`;
+    }
+  }
+
+  container.innerHTML = regions.map(r => {
+    const s = regionStats[r];
+    const color = getColor(s.avgGuide);
+    const hasData = s.count > 0;
+    return `<div class="map-cell" data-map-region="${r}" style="background:${color}${hasData ? '' : ';opacity:0.5'}">
+      <span class="map-cell-name">${r}</span>
+      ${hasData ? `<span class="map-cell-price">&pound;${s.avgGuide.toLocaleString()}</span>` : '<span class="map-cell-price">No data</span>'}
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `<div class="map-panel-placeholder">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <p>Click a region to see auction market details</p>
+  </div>`;
+
+  container.querySelectorAll('.map-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      container.querySelectorAll('.map-cell').forEach(c => c.classList.remove('selected'));
+      cell.classList.add('selected');
+
+      const region = cell.dataset.mapRegion;
+      const s = regionStats[region];
+
+      if (s.count === 0 && !s.events) {
+        panel.innerHTML = `<div class="map-panel-placeholder">
+          <p>No recent data for <strong>${region}</strong></p>
+          <a href="#directory" class="btn btn-outline btn-sm" onclick="document.getElementById('filterRegion').value='${region}';document.getElementById('filterRegion').dispatchEvent(new Event('change'))">
+            Browse ${region} Auction Houses
+          </a>
+        </div>`;
+        return;
+      }
+
+      panel.innerHTML = `
+        <h4 class="map-panel-title">${region}</h4>
+        <div class="map-panel-stats">
+          ${s.count > 0 ? `
+          <div class="map-panel-stat">
+            <span class="map-panel-stat-label">Avg Guide Price</span>
+            <span class="map-panel-stat-value">&pound;${s.avgGuide.toLocaleString()}</span>
+          </div>
+          <div class="map-panel-stat">
+            <span class="map-panel-stat-label">Avg Sale Price</span>
+            <span class="map-panel-stat-value">&pound;${s.avgSale.toLocaleString()}</span>
+          </div>
+          <div class="map-panel-stat">
+            <span class="map-panel-stat-label">Avg Premium</span>
+            <span class="map-panel-stat-value ${s.avgPremium >= 0 ? 'positive' : 'negative'}">${s.avgPremium >= 0 ? '+' : ''}${s.avgPremium.toFixed(1)}%</span>
+          </div>
+          <div class="map-panel-stat">
+            <span class="map-panel-stat-label">Lots Tracked</span>
+            <span class="map-panel-stat-value">${s.count}</span>
+          </div>
+          ` : ''}
+          ${s.events ? `
+          <div class="map-panel-stat">
+            <span class="map-panel-stat-label">Upcoming Auctions</span>
+            <span class="map-panel-stat-value">${s.events}</span>
+          </div>
+          ` : ''}
+        </div>
+        <div class="map-panel-actions">
+          <a href="#directory" class="btn btn-outline btn-sm" onclick="document.getElementById('filterRegion').value='${region}';document.getElementById('filterRegion').dispatchEvent(new Event('change'))">
+            Browse ${region} Houses
+          </a>
+          <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+            Finance in ${region}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      `;
+    });
+  });
+
+  const legend = document.getElementById('mapLegend');
+  if (legend) {
+    legend.innerHTML = `
+      <span class="map-legend-label">&pound;${minAvg === Infinity ? '0' : minAvg.toLocaleString()}</span>
+      <div class="map-legend-bar"></div>
+      <span class="map-legend-label">&pound;${maxAvg === 0 ? '0' : maxAvg.toLocaleString()}</span>
+    `;
+  }
+}
+
+// ===========================
+// Finance Tooltip
+// ===========================
+function calcBridgingCosts(purchasePrice) {
+  const ltv = 0.70;
+  const monthlyRate = 0.0075;
+  const arrangementPct = 0.02;
+  const term = 12;
+  const loanAmount = Math.round(purchasePrice * ltv);
+  const depositNeeded = purchasePrice - loanAmount;
+  const monthlyInterest = Math.round(loanAmount * monthlyRate);
+  const arrangementFee = Math.round(loanAmount * arrangementPct);
+  const totalInterest = monthlyInterest * term;
+  const totalCost = totalInterest + arrangementFee;
+  return { purchasePrice, loanAmount, depositNeeded, monthlyInterest, arrangementFee, totalInterest, totalCost, term };
+}
+
+function initFinanceTooltip() {
+  const tooltip = document.getElementById('financeTooltip');
+  if (!tooltip) return;
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.finance-tooltip') && !e.target.closest('.finance-icon-btn')) {
+      tooltip.classList.remove('active');
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') tooltip.classList.remove('active');
+  });
+}
+
+function showFinanceTooltip(btn, price) {
+  const tooltip = document.getElementById('financeTooltip');
+  if (!tooltip) return;
+
+  const costs = calcBridgingCosts(price);
+  tooltip.innerHTML = `
+    <div class="ft-header">
+      <strong>Estimated Bridging Finance</strong>
+      <button class="ft-close" onclick="document.getElementById('financeTooltip').classList.remove('active')">&times;</button>
+    </div>
+    <div class="ft-rows">
+      <div class="ft-row"><span>Purchase Price</span><span>&pound;${costs.purchasePrice.toLocaleString()}</span></div>
+      <div class="ft-row"><span>Deposit (30%)</span><span>&pound;${costs.depositNeeded.toLocaleString()}</span></div>
+      <div class="ft-row"><span>Loan (70% LTV)</span><span>&pound;${costs.loanAmount.toLocaleString()}</span></div>
+      <div class="ft-divider"></div>
+      <div class="ft-row"><span>Monthly Interest (0.75%)</span><span>&pound;${costs.monthlyInterest.toLocaleString()}</span></div>
+      <div class="ft-row"><span>Arrangement Fee (2%)</span><span>&pound;${costs.arrangementFee.toLocaleString()}</span></div>
+      <div class="ft-row ft-total"><span>Total Finance Cost (${costs.term}m)</span><span>&pound;${costs.totalCost.toLocaleString()}</span></div>
+    </div>
+    <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm ft-cta">
+      Get Your Exact Quote
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <div class="ft-note">Illustration only. Actual rates may vary.</div>
+  `;
+
+  const rect = btn.getBoundingClientRect();
+  const scrollTop = window.scrollY;
+  const scrollLeft = window.scrollX;
+  tooltip.style.top = (rect.bottom + scrollTop + 8) + 'px';
+  tooltip.style.left = Math.max(16, Math.min(rect.left + scrollLeft - 100, window.innerWidth - 320)) + 'px';
+  tooltip.classList.add('active');
 }

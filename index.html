@@ -33,6 +33,7 @@
         <a href="#how-it-works" class="nav-link">Auction Finance</a>
         <a href="#directory" class="nav-link">Directory</a>
         <a href="#auction-results" class="nav-link">Results</a>
+        <a href="#priceMap" class="nav-link">Map</a>
         <a href="#calendar" class="nav-link">Calendar</a>
         <a href="#guides" class="nav-link">Guides</a>
         <a href="#auction-tips" class="nav-link">Tips</a>
@@ -91,6 +92,9 @@
       <div class="event-ticker-content" id="tickerContent"></div>
     </div>
   </div>
+
+  <!-- Weekly Digest Widget -->
+  <div class="weekly-digest" id="weeklyDigest"></div>
 
   <!-- Watchlist -->
   <section class="watchlist-section" id="watchlistSection" style="display:none">
@@ -224,6 +228,29 @@
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M8 8l6 6M14 8l-6 6"/></svg>
         <h3>No auction houses match your filters</h3>
         <p>Try adjusting your filters or <button class="link-btn" id="clearFiltersAlt">clear all filters</button></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- UK Price Map -->
+  <section class="map-section" id="priceMap">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">UK Auction Price Map</h2>
+        <p class="section-desc">Average guide prices by region - click a region to explore</p>
+      </div>
+      <div class="map-layout">
+        <div>
+          <div class="map-grid-container" id="priceMapGrid">
+            <!-- Rendered by JS -->
+          </div>
+          <div class="map-legend" id="mapLegend">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+        <div class="map-details-panel" id="mapDetailsPanel">
+          <!-- Rendered by JS -->
+        </div>
       </div>
     </div>
   </section>
@@ -637,6 +664,7 @@
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="#auction-results">Auction Results</a>
+          <a href="#priceMap">Price Map</a>
           <a href="#calendar">Auction Calendar</a>
           <a href="#guides">Investor Guides</a>
           <a href="#auction-tips">Investor Tips</a>
@@ -701,6 +729,9 @@
   <button class="back-to-top" id="backToTop" aria-label="Back to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
   </button>
+
+  <!-- Finance Tooltip -->
+  <div class="finance-tooltip" id="financeTooltip"></div>
 
   <script src="data.js"></script>
   <script src="calendar-data.js"></script>
