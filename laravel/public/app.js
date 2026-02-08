@@ -648,10 +648,16 @@ function navigateToCalendarEvent(dateStr) {
   if (calSection) {
     calSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  // Show event panel for that date after a short delay (to allow scroll)
+  // Show event panel and highlight the date cell after scroll completes
   setTimeout(() => {
     showEventsForDate(dateStr);
-  }, 400);
+    // Flash highlight the specific date cell
+    const dateCell = document.querySelector(`.cal-day[data-date="${dateStr}"]`);
+    if (dateCell) {
+      dateCell.classList.add('ticker-highlight');
+      setTimeout(() => dateCell.classList.remove('ticker-highlight'), 2000);
+    }
+  }, 500);
 }
 
 function renderOngoingAuctioneers() {
@@ -821,7 +827,7 @@ function initEventTicker() {
       const dateStr = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
       const typeClass = e.type.toLowerCase() === 'room' ? 'room' : 'online';
       const name = e.house.length > 25 ? e.house.substring(0, 23) + '..' : e.house;
-      return `<div class="event-ticker-item" onclick="navigateToCalendarEvent('${e.date}')" style="cursor:pointer">
+      return `<div class="event-ticker-item" data-event-date="${e.date}">
         <span class="event-ticker-date">${dateStr}</span>
         <span class="event-ticker-type ${typeClass}">${e.type}</span>
         <span>${name}</span>
@@ -833,6 +839,15 @@ function initEventTicker() {
   // Duplicate items for seamless infinite scroll
   const itemsHtml = buildItems(upcoming);
   tickerContent.innerHTML = itemsHtml + itemsHtml;
+
+  // Use event delegation for reliable clicks on animated elements
+  tickerContent.addEventListener('click', function(e) {
+    const item = e.target.closest('.event-ticker-item');
+    if (item) {
+      const dateStr = item.getAttribute('data-event-date');
+      if (dateStr) navigateToCalendarEvent(dateStr);
+    }
+  });
 
   // Adjust animation speed based on content width
   requestAnimationFrame(() => {

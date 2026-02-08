@@ -761,11 +761,12 @@ select { font-family: inherit; }
   color: rgba(255,255,255,0.85);
   border-right: 1px solid rgba(255,255,255,0.08);
   height: 100%;
-  cursor: default;
-  transition: color 0.2s;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
 }
 .event-ticker-item:hover {
   color: var(--white);
+  background: rgba(255,255,255,0.06);
 }
 .event-ticker-date {
   font-weight: 700;
@@ -1303,6 +1304,14 @@ select { font-family: inherit; }
 .cal-day.selected {
   background: #DBEAFE;
   box-shadow: inset 0 0 0 2px var(--primary-light);
+}
+.cal-day.ticker-highlight {
+  animation: calFlash 0.5s ease 3;
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 16px rgba(198,163,96,0.4);
+}
+@keyframes calFlash {
+  0%, 100% { background: #DBEAFE; }
+  50% { background: rgba(198,163,96,0.25); }
 }
 .cal-day-num {
   font-size: 0.85rem;
