@@ -44,6 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initSidebarCalendar();
   // Event ticker
   initEventTicker();
+  // Recently viewed
+  renderRecentlyViewed();
+  // Watchlist
+  renderWatchlist();
+  // Guides accordion
+  initGuides();
+  // Auction results
+  initResults();
 });
 
 // ===========================
@@ -212,13 +220,19 @@ function createCardHTML(h) {
   const specClass = getSpecClass(h.spec);
   const reachClass = h.reach.toLowerCase();
 
+  const watched = isWatched(h.id);
   return `
     <div class="card-header">
       <div class="card-title-row">
         <span class="card-name">${h.name}</span>
-        <span class="card-reach ${reachClass}">${h.reach}</span>
+        <button class="wl-heart ${watched ? 'active' : ''}" data-wl-id="${h.id}" onclick="event.stopPropagation();toggleWatchlist(${h.id})" title="Add to watchlist">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="${watched ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </button>
       </div>
-      <div class="card-rating" title="Data Transparency: ${h.dataRating}/5">${stars}</div>
+      <div class="card-reach-rating">
+        <span class="card-reach ${reachClass}">${h.reach}</span>
+        <div class="card-rating" title="Data Transparency: ${h.dataRating}/5">${stars}</div>
+      </div>
     </div>
     <p class="card-desc">${h.desc}</p>
     <div class="card-tags">
@@ -385,6 +399,7 @@ function openModal(h) {
 
   modalOverlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+  trackRecentlyViewed(h.id, h.name);
 }
 
 function closeModal() {
@@ -855,5 +870,239 @@ function initEventTicker() {
     const speed = 50; // pixels per second
     const duration = contentWidth / speed;
     tickerContent.style.animationDuration = duration + 's';
+  });
+}
+
+// ===========================
+// Auction Results
+// ===========================
+function initResults() {
+  if (typeof AUCTION_RESULTS === 'undefined') return;
+  const regionFilter = document.getElementById('resFilterRegion');
+  const typeFilter = document.getElementById('resFilterType');
+  if (!regionFilter || !typeFilter) return;
+
+  regionFilter.addEventListener('change', renderResults);
+  typeFilter.addEventListener('change', renderResults);
+  renderResults();
+}
+
+function renderResults() {
+  const statsBar = document.getElementById('resultsStatsBar');
+  const grid = document.getElementById('resGrid');
+  if (!statsBar || !grid || typeof AUCTION_RESULTS === 'undefined') return;
+
+  const regionVal = document.getElementById('resFilterRegion').value;
+  const typeVal = document.getElementById('resFilterType').value;
+
+  let filtered = AUCTION_RESULTS;
+  if (regionVal) filtered = filtered.filter(r => r.region === regionVal);
+  if (typeVal) filtered = filtered.filter(r => r.type === typeVal);
+
+  // Calculate stats
+  const total = filtered.length;
+  const diffs = filtered.map(r => ((r.salePrice - r.guidePrice) / r.guidePrice) * 100);
+  const avgDiff = total > 0 ? diffs.reduce((a, b) => a + b, 0) / total : 0;
+  const aboveGuide = total > 0 ? filtered.filter(r => r.salePrice >= r.guidePrice).length : 0;
+  const abovePct = total > 0 ? Math.round((aboveGuide / total) * 100) : 0;
+  const avgSale = total > 0 ? Math.round(filtered.reduce((a, r) => a + r.salePrice, 0) / total) : 0;
+
+  statsBar.innerHTML = `
+    <div class="res-stat">
+      <span class="res-stat-value ${avgDiff >= 0 ? 'positive' : 'negative'}">${avgDiff >= 0 ? '+' : ''}${avgDiff.toFixed(1)}%</span>
+      <span class="res-stat-label">Avg. Sale vs Guide</span>
+    </div>
+    <div class="res-stat">
+      <span class="res-stat-value">${abovePct}%</span>
+      <span class="res-stat-label">Sold At/Above Guide</span>
+    </div>
+    <div class="res-stat">
+      <span class="res-stat-value">&pound;${avgSale.toLocaleString()}</span>
+      <span class="res-stat-label">Avg. Sale Price</span>
+    </div>
+    <div class="res-stat">
+      <span class="res-stat-value">${total}</span>
+      <span class="res-stat-label">Lots Tracked</span>
+    </div>
+  `;
+
+  grid.innerHTML = filtered.map(r => {
+    const diff = ((r.salePrice - r.guidePrice) / r.guidePrice) * 100;
+    const diffClass = diff >= 0 ? 'premium' : 'discount';
+    const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(0) + '%';
+    return `<div class="res-card">
+      <div class="res-card-diff ${diffClass}">${diffStr}</div>
+      <div class="res-card-info">
+        <div class="res-card-house">${r.house}</div>
+        <div class="res-card-address">${r.address}</div>
+        <div class="res-card-prices">
+          <span>Guide: <strong>&pound;${r.guidePrice.toLocaleString()}</strong></span>
+          <span>Sold: <strong>&pound;${r.salePrice.toLocaleString()}</strong></span>
+          <span>${r.type}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===========================
+// Guides Accordion
+// ===========================
+function initGuides() {
+  document.querySelectorAll('.guide-card-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const card = header.closest('.guide-card');
+      const wasOpen = card.classList.contains('open');
+      // Close all guides
+      document.querySelectorAll('.guide-card').forEach(c => c.classList.remove('open'));
+      // Toggle clicked
+      if (!wasOpen) card.classList.add('open');
+    });
+  });
+}
+
+// ===========================
+// Recently Viewed
+// ===========================
+const RV_KEY = 'auctionHubRecentlyViewed';
+const RV_MAX = 5;
+
+function getRecentlyViewed() {
+  try { return JSON.parse(localStorage.getItem(RV_KEY)) || []; }
+  catch { return []; }
+}
+
+function trackRecentlyViewed(id, name) {
+  let rv = getRecentlyViewed();
+  rv = rv.filter(item => item.id !== id);
+  rv.unshift({ id, name });
+  if (rv.length > RV_MAX) rv = rv.slice(0, RV_MAX);
+  localStorage.setItem(RV_KEY, JSON.stringify(rv));
+  renderRecentlyViewed();
+}
+
+function renderRecentlyViewed() {
+  const bar = document.getElementById('recentlyViewedBar');
+  const chips = document.getElementById('rvChips');
+  if (!bar || !chips) return;
+
+  const rv = getRecentlyViewed();
+  if (rv.length === 0) { bar.style.display = 'none'; return; }
+
+  bar.style.display = 'flex';
+  chips.innerHTML = rv.map(item =>
+    `<span class="rv-chip" data-rv-id="${item.id}">
+      ${item.name}
+      <span class="rv-chip-close" data-rv-remove="${item.id}">&times;</span>
+    </span>`
+  ).join('');
+
+  // Click chip to reopen modal
+  chips.querySelectorAll('.rv-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('rv-chip-close')) return;
+      const houseId = parseInt(chip.dataset.rvId);
+      const house = AUCTION_HOUSES.find(h => h.id === houseId);
+      if (house) openModal(house);
+    });
+  });
+
+  // Click X to remove single item
+  chips.querySelectorAll('.rv-chip-close').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.rvRemove);
+      let rv = getRecentlyViewed();
+      rv = rv.filter(item => item.id !== id);
+      localStorage.setItem(RV_KEY, JSON.stringify(rv));
+      renderRecentlyViewed();
+    });
+  });
+
+  // Clear all button
+  document.getElementById('rvClearAll').onclick = () => {
+    localStorage.removeItem(RV_KEY);
+    renderRecentlyViewed();
+  };
+}
+
+// ===========================
+// Watchlist
+// ===========================
+const WL_KEY = 'auctionHubWatchlist';
+
+function getWatchlist() {
+  try { return JSON.parse(localStorage.getItem(WL_KEY)) || []; }
+  catch { return []; }
+}
+
+function toggleWatchlist(id) {
+  let wl = getWatchlist();
+  if (wl.includes(id)) {
+    wl = wl.filter(x => x !== id);
+  } else {
+    wl.push(id);
+  }
+  localStorage.setItem(WL_KEY, JSON.stringify(wl));
+  // Update all heart icons on page
+  document.querySelectorAll(`.wl-heart[data-wl-id="${id}"]`).forEach(el => {
+    el.classList.toggle('active', wl.includes(id));
+  });
+  renderWatchlist();
+}
+
+function isWatched(id) {
+  return getWatchlist().includes(id);
+}
+
+function renderWatchlist() {
+  const section = document.getElementById('watchlistSection');
+  const grid = document.getElementById('watchlistGrid');
+  if (!section || !grid) return;
+
+  const wl = getWatchlist();
+  if (wl.length === 0) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekLater = new Date(today);
+  weekLater.setDate(weekLater.getDate() + 7);
+
+  const houses = wl.map(id => AUCTION_HOUSES.find(h => h.id === id)).filter(Boolean);
+
+  grid.innerHTML = houses.map(h => {
+    const hasUpcoming = typeof AUCTION_EVENTS !== 'undefined' && AUCTION_EVENTS.some(e => {
+      if (e.houseId !== h.id) return false;
+      const d = new Date(e.date + 'T00:00:00');
+      return d >= today && d <= weekLater;
+    });
+    return `<div class="wl-card" data-wl-card-id="${h.id}">
+      <div class="wl-card-top">
+        <span class="wl-card-name">${h.name}</span>
+        ${hasUpcoming ? '<span class="wl-badge-soon">Auction Soon</span>' : ''}
+      </div>
+      <span class="wl-card-region">${h.reach} - ${h.format}</span>
+      <button class="wl-card-remove" data-wl-remove="${h.id}">&times;</button>
+    </div>`;
+  }).join('');
+
+  // Click card to open modal
+  grid.querySelectorAll('.wl-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('wl-card-remove')) return;
+      const id = parseInt(card.dataset.wlCardId);
+      const house = AUCTION_HOUSES.find(h => h.id === id);
+      if (house) openModal(house);
+    });
+  });
+
+  // Remove from watchlist
+  grid.querySelectorAll('.wl-card-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleWatchlist(parseInt(btn.dataset.wlRemove));
+    });
   });
 }

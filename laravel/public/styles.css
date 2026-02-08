@@ -1700,491 +1700,398 @@ select { font-family: inherit; }
 }
 
 /* ===========================
-   Live Lots Section
+   Auction Results
    =========================== */
-.live-lots-section {
+.results-section {
   padding: 60px 0;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-}
-
-.lots-filters-wrapper {
   background: var(--white);
+}
+.results-stats-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
-
-.lots-search-bar {
+.res-stat {
+  flex: 1;
+  padding: 16px 20px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.res-stat:last-child { border-right: none; }
+.res-stat-value {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.res-stat-value.positive { color: var(--success); }
+.res-stat-value.negative { color: var(--error); }
+.res-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+.results-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.res-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.res-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  background: var(--bg);
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-light);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin-bottom: 16px;
-  transition: border-color var(--transition);
+  transition: border-color 0.2s;
 }
-.lots-search-bar:focus-within { border-color: var(--primary-light); }
-.lots-search-bar svg { color: var(--text-light); flex-shrink: 0; }
-.lots-search-bar input {
-  flex: 1;
-  border: none;
-  background: none;
-  font-size: 0.9rem;
-  color: var(--text);
-  outline: none;
-}
-.lots-search-bar input::placeholder { color: var(--text-light); }
-
-.lots-filter-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.lots-filter-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border-light);
-}
-.lots-count {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  flex: 1;
-}
-
-.lots-loading {
+.res-card:hover { border-color: var(--primary-light); }
+.res-card-diff {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 60px 20px;
-  color: var(--text-light);
-  font-size: 0.92rem;
-}
-.lots-spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.lots-empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-light);
-}
-.lots-empty svg { margin: 0 auto 16px; }
-.lots-empty h3 { color: var(--text); margin-bottom: 8px; }
-
-/* Lot Cards Grid */
-.lots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 20px;
-  transition: opacity var(--transition);
-}
-
-/* Lot Card */
-.lot-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: all var(--transition);
-  animation: fadeInUp 0.4s ease both;
-}
-.lot-card:hover {
-  border-color: var(--primary-light);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.lot-card-image {
-  height: 180px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.lot-card-image-icon {
-  opacity: 0.6;
-}
-
-.lot-card-countdown {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: rgba(11,29,58,0.85);
-  color: var(--white);
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  backdrop-filter: blur(4px);
-}
-
-.lot-card-type-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.lot-badge-residential { background: #D1FAE5; color: #065F46; }
-.lot-badge-commercial { background: #DBEAFE; color: #1E40AF; }
-.lot-badge-land { background: #FEF3C7; color: #92400E; }
-.lot-badge-mixed { background: #F3E8FF; color: #7C3AED; }
-
-.lot-card-body {
-  padding: 18px 20px 20px;
-}
-
-.lot-card-price {
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--primary-dark);
-  margin-bottom: 6px;
-}
-.lot-price-poa {
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
-.lot-card-title {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.4;
-  margin-bottom: 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.lot-card-address {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius);
   font-size: 0.82rem;
-  color: var(--text-secondary);
-  margin-bottom: 10px;
+  font-weight: 700;
 }
-
-.lot-card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.res-card-diff.premium {
+  background: rgba(46,204,113,0.1);
+  color: #27ae60;
+}
+.res-card-diff.discount {
+  background: rgba(231,76,60,0.1);
+  color: #e74c3c;
+}
+.res-card-info { flex: 1; min-width: 0; }
+.res-card-house {
   font-size: 0.78rem;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-light);
-}
-.lot-card-house {
-  color: var(--primary);
   font-weight: 600;
-}
-.lot-card-date {
-  color: var(--text-light);
-}
-
-.lot-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.lot-tag {
-  display: inline-block;
-  padding: 3px 8px;
-  font-size: 0.72rem;
-  font-weight: 500;
-  border-radius: 50px;
-  background: var(--bg);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
-}
-.lot-cond-modern { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; }
-.lot-cond-refurb { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
-.lot-cond-dev { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
-
-.lot-card-actions {
-  display: flex;
-  gap: 8px;
-}
-.lot-card-actions .btn {
-  flex: 1;
-  justify-content: center;
-  font-size: 0.8rem;
-  padding: 8px 10px;
-}
-
-/* Lot Inline CTA */
-.lot-inline-cta {
-  grid-column: 1 / -1;
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  border-radius: var(--radius-lg);
-  padding: 28px 32px;
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.lot-inline-cta-content h3 {
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  margin-bottom: 6px;
-}
-.lot-inline-cta-content p {
-  font-size: 0.88rem;
-  opacity: 0.8;
-}
-
-/* Pagination */
-.lots-pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  margin-top: 32px;
-}
-.lot-page-btn {
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  color: var(--text);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.lot-page-btn:hover:not([disabled]):not(.active) {
-  border-color: var(--primary-light);
   color: var(--primary);
+  margin-bottom: 2px;
 }
-.lot-page-btn.active {
-  background: var(--primary-dark);
-  color: var(--white);
-  border-color: var(--primary-dark);
+.res-card-address {
+  font-size: 0.82rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.lot-page-btn[disabled] {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.lot-page-dots {
-  font-size: 0.85rem;
+.res-card-prices {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 0.75rem;
   color: var(--text-light);
-  padding: 0 4px;
+}
+.res-card-prices strong { color: var(--text); }
+.results-cta {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+.results-cta p {
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+@media (max-width: 768px) {
+  .results-stats-bar { flex-direction: column; }
+  .res-stat { border-right: none; border-bottom: 1px solid var(--border); }
+  .res-stat:last-child { border-bottom: none; }
+  .results-filters { flex-direction: column; }
+  .res-grid { grid-template-columns: 1fr; }
 }
 
 /* ===========================
-   Loan Calculator Modal
+   Investor Guides
    =========================== */
-.loan-calc-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(11,29,58,0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  padding: 24px;
+.guides-section {
+  padding: 60px 0;
+  background: var(--bg-light);
 }
-.loan-calc-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.loan-calc-panel {
-  background: var(--white);
-  border-radius: var(--radius-xl);
-  max-width: 680px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  transform: translateY(20px);
-  transition: transform 0.3s ease;
-}
-.loan-calc-overlay.active .loan-calc-panel {
-  transform: translateY(0);
-}
-
-.loan-calc-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 28px 28px 0;
-}
-.loan-calc-header h3 {
-  font-family: var(--font-serif);
-  font-size: 1.4rem;
-  color: var(--primary-dark);
-  margin-bottom: 4px;
-}
-.loan-calc-header p {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
-.loan-calc-close {
-  width: 36px;
-  height: 36px;
-  background: var(--bg);
-  border-radius: 50%;
-  font-size: 1.3rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition);
-  flex-shrink: 0;
-}
-.loan-calc-close:hover { background: var(--border); color: var(--text); }
-
-.loan-calc-body {
+.guides-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
-  padding: 24px 28px 28px;
-}
-
-.loan-calc-inputs {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
-
-.loan-calc-field label {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+.guide-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.2s;
 }
-
-.loan-calc-input-wrap {
+.guide-card:hover { border-color: var(--primary-light); }
+.guide-card.open { border-color: var(--primary-light); }
+.guide-card-header {
   display: flex;
   align-items: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  transition: border-color var(--transition);
+  gap: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-.loan-calc-input-wrap:focus-within { border-color: var(--primary-light); }
-.loan-calc-input-wrap input {
+.guide-card-header:hover { background: var(--bg-light); }
+.guide-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(21,62,96,0.06);
+  border-radius: var(--radius);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.guide-card-header h3 {
   flex: 1;
-  border: none;
-  padding: 10px 12px;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text);
-  outline: none;
-  background: none;
+  margin: 0;
 }
-.loan-calc-prefix, .loan-calc-suffix {
-  padding: 10px 12px;
-  background: var(--bg);
-  color: var(--text-secondary);
-  font-size: 0.88rem;
-  font-weight: 600;
-  border-left: 1px solid var(--border);
-}
-.loan-calc-prefix {
-  border-left: none;
-  border-right: 1px solid var(--border);
-}
-
-.loan-calc-hint {
-  font-size: 0.72rem;
+.guide-chevron {
   color: var(--text-light);
-  margin-top: 4px;
-  display: block;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+.guide-card.open .guide-chevron { transform: rotate(180deg); }
+.guide-card-body {
+  display: none;
+  padding: 0 20px 20px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.guide-card.open .guide-card-body { display: block; }
+.guide-card-body ul, .guide-card-body ol {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+.guide-card-body li { margin-bottom: 6px; }
+.guide-card-body p { margin: 10px 0; }
+.guide-cta {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 768px) {
+  .guides-grid { grid-template-columns: 1fr; }
 }
 
-.loan-calc-results {
-  background: var(--bg);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+/* ===========================
+   Watchlist
+   =========================== */
+.watchlist-section {
+  padding: 20px 0;
+  background: linear-gradient(135deg, #fdf8ef 0%, #fff9f0 100%);
+  border-bottom: 1px solid rgba(198,163,96,0.15);
+}
+.wl-header {
+  margin-bottom: 12px;
+}
+.wl-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.wl-title svg { color: var(--accent); }
+.wl-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.wl-card {
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 36px 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 200px;
+}
+.wl-card:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.wl-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wl-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.wl-badge-soon {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--accent);
+  color: var(--white);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.wl-card-region {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+.wl-card-remove {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+}
+.wl-card-remove:hover { color: var(--error); }
+
+/* Heart bookmark on cards */
+.wl-heart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.wl-heart:hover { color: var(--accent); background: rgba(198,163,96,0.1); }
+.wl-heart.active { color: var(--accent); }
+.wl-heart.active svg { fill: currentColor; }
+.card-reach-rating {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
 }
 
-.loan-calc-result-header {
-  font-size: 0.78rem;
+/* ===========================
+   Recently Viewed Bar
+   =========================== */
+.recently-viewed-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 42px;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  z-index: 95;
+  animation: rvSlideUp 0.3s ease;
+}
+@keyframes rvSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.rv-label {
+  flex-shrink: 0;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-.loan-calc-result-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  font-size: 0.88rem;
-}
-.loan-calc-result-row span { color: var(--text-secondary); }
-.loan-calc-result-row strong { color: var(--text); font-weight: 700; }
-.loan-calc-result-row.total {
-  margin-top: 8px;
-  padding-top: 12px;
-  border-top: 2px solid var(--primary-dark);
-}
-.loan-calc-result-row.total strong {
-  font-size: 1.1rem;
-  color: var(--primary-dark);
-}
-
-.loan-calc-apply {
-  width: 100%;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.loan-calc-disclaimer {
-  font-size: 0.72rem;
   color: var(--text-light);
-  margin-top: 14px;
-  line-height: 1.5;
-  font-style: italic;
 }
-
-/* Responsive lots */
+.rv-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+}
+.rv-chips::-webkit-scrollbar { display: none; }
+.rv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: var(--primary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rv-chip:hover {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+.rv-chip-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rv-chip:hover .rv-chip-close { color: var(--white); }
+.rv-clear {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 0;
+}
+.rv-clear:hover { color: var(--primary); }
 @media (max-width: 768px) {
-  .lots-filter-bar { grid-template-columns: repeat(2, 1fr); }
-  .lots-grid { grid-template-columns: 1fr; }
-  .lot-card-image { height: 150px; }
-  .lot-inline-cta { flex-direction: column; text-align: center; padding: 20px; }
-  .loan-calc-body { grid-template-columns: 1fr; }
-  .loan-calc-panel { margin: 12px; }
-}
-
-@media (max-width: 480px) {
-  .lots-filter-bar { grid-template-columns: 1fr; }
-  .lot-card-actions { flex-direction: column; }
+  .recently-viewed-bar { padding: 0 12px; height: 38px; }
+  .rv-label { display: none; }
 }
 
 /* ===========================

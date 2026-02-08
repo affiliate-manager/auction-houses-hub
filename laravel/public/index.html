@@ -31,10 +31,11 @@
       </a>
       <nav class="nav" id="nav">
         <a href="#how-it-works" class="nav-link">Auction Finance</a>
-        <a href="#live-lots" class="nav-link">Live Lots</a>
         <a href="#directory" class="nav-link">Directory</a>
-        <a href="#calendar" class="nav-link">Auction Calendar</a>
-        <a href="#auction-tips" class="nav-link">Investor Tips</a>
+        <a href="#auction-results" class="nav-link">Results</a>
+        <a href="#calendar" class="nav-link">Calendar</a>
+        <a href="#guides" class="nav-link">Guides</a>
+        <a href="#auction-tips" class="nav-link">Tips</a>
       </nav>
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -48,7 +49,7 @@
     <div class="container hero-inner">
       <h1 class="hero-title">UK Auction Houses<br>for Property Investors</h1>
       <div class="hero-actions">
-        <a href="#live-lots" class="btn btn-primary btn-lg">Browse Live Lots</a>
+        <a href="#directory" class="btn btn-primary btn-lg">Browse Directory</a>
         <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-lg" target="_blank" rel="noopener">
           Pre-Approve Your Finance
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
@@ -80,121 +81,6 @@
   </section>
 
 
-  <!-- ==================== -->
-  <!-- LIVE LOTS -->
-  <!-- ==================== -->
-  <section class="live-lots-section" id="live-lots">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Live Auction Lots</h2>
-        <p class="section-desc">Browse upcoming property lots across UK auction houses. Each lot includes guide prices and instant access to auction finance.</p>
-      </div>
-
-      <!-- Lot Filters -->
-      <div class="lots-filters-wrapper">
-        <div class="lots-search-bar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="text" id="lotsSearch" placeholder="Search by title, address or postcode..." autocomplete="off">
-        </div>
-
-        <div class="lots-filter-bar">
-          <div class="filter-group">
-            <label class="filter-label">Region</label>
-            <select id="lotsFilterRegion" class="filter-select">
-              <option value="">All Regions</option>
-              <option value="London">London</option>
-              <option value="South East">South East</option>
-              <option value="South West">South West</option>
-              <option value="East Anglia">East Anglia</option>
-              <option value="East Midlands">East Midlands</option>
-              <option value="West Midlands">West Midlands</option>
-              <option value="North West">North West</option>
-              <option value="North East">North East</option>
-              <option value="Yorkshire">Yorkshire</option>
-              <option value="Wales">Wales</option>
-              <option value="Scotland">Scotland</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">Property Type</label>
-            <select id="lotsFilterType" class="filter-select">
-              <option value="">All Types</option>
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-              <option value="land">Land</option>
-              <option value="mixed">Mixed Use</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">Condition</label>
-            <select id="lotsFilterCondition" class="filter-select">
-              <option value="">Any Condition</option>
-              <option value="modern">Modern</option>
-              <option value="refurbishment">Refurbishment</option>
-              <option value="development">Development</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">Max Price</label>
-            <select id="lotsFilterPriceMax" class="filter-select">
-              <option value="">Any Price</option>
-              <option value="50000">Up to £50k</option>
-              <option value="100000">Up to £100k</option>
-              <option value="200000">Up to £200k</option>
-              <option value="500000">Up to £500k</option>
-              <option value="1000000">Up to £1m</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">Sort By</label>
-            <select id="lotsFilterSort" class="filter-select">
-              <option value="date_asc">Auction Date (Soonest)</option>
-              <option value="price_asc">Price (Low to High)</option>
-              <option value="price_desc">Price (High to Low)</option>
-              <option value="newest">Recently Added</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="lots-filter-actions">
-          <button class="btn btn-outline btn-sm" id="lotsClearFilters">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            Clear
-          </button>
-          <div class="lots-count" id="lotsCount">Loading lots...</div>
-          <input type="hidden" id="lotsFilterPriceMin" value="">
-        </div>
-      </div>
-
-      <!-- Loading Spinner -->
-      <div class="lots-loading" id="lotsLoading" style="display:none">
-        <div class="lots-spinner"></div>
-        <span>Loading auction lots...</span>
-      </div>
-
-      <!-- Lots Grid -->
-      <div class="lots-grid" id="lotsGrid">
-        <!-- Rendered by lots.js -->
-      </div>
-
-      <!-- No Results -->
-      <div class="lots-empty" id="lotsEmpty" style="display:none">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <h3>No lots match your filters</h3>
-        <p>Try adjusting your filters or check back soon for new listings</p>
-      </div>
-
-      <!-- Pagination -->
-      <div class="lots-pagination" id="lotsPagination">
-        <!-- Rendered by lots.js -->
-      </div>
-    </div>
-  </section>
-
   <!-- Auction Event Ticker -->
   <div class="event-ticker" id="eventTicker">
     <div class="event-ticker-label">
@@ -205,6 +91,19 @@
       <div class="event-ticker-content" id="tickerContent"></div>
     </div>
   </div>
+
+  <!-- Watchlist -->
+  <section class="watchlist-section" id="watchlistSection" style="display:none">
+    <div class="container">
+      <div class="wl-header">
+        <h3 class="wl-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          My Watchlist
+        </h3>
+      </div>
+      <div class="wl-grid" id="watchlistGrid"></div>
+    </div>
+  </section>
 
   <!-- ==================== -->
   <!-- 2. DIRECTORY -->
@@ -446,6 +345,207 @@
   </section>
 
   <!-- ==================== -->
+  <!-- AUCTION RESULTS -->
+  <!-- ==================== -->
+  <section class="results-section" id="auction-results">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Recent Auction Results</h2>
+        <p class="section-desc">Track sale prices vs guide prices across UK auction houses</p>
+      </div>
+      <div class="results-stats-bar" id="resultsStatsBar">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="results-filters">
+        <select id="resFilterRegion" class="filter-select">
+          <option value="">All Regions</option>
+          <option value="London">London</option>
+          <option value="South East">South East</option>
+          <option value="South West">South West</option>
+          <option value="East Anglia">East Anglia</option>
+          <option value="East Midlands">East Midlands</option>
+          <option value="West Midlands">West Midlands</option>
+          <option value="North West">North West</option>
+          <option value="North East">North East</option>
+          <option value="Yorkshire">Yorkshire</option>
+          <option value="Scotland">Scotland</option>
+        </select>
+        <select id="resFilterType" class="filter-select">
+          <option value="">All Types</option>
+          <option value="Residential">Residential</option>
+          <option value="Commercial">Commercial</option>
+          <option value="Land">Land</option>
+        </select>
+      </div>
+      <div class="res-grid" id="resGrid">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="results-cta">
+        <p>Planning your bid? Know your budget first.</p>
+        <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-sm" target="_blank" rel="noopener">
+          Pre-Approve Your Finance
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== -->
+  <!-- INVESTOR GUIDES -->
+  <!-- ==================== -->
+  <section class="guides-section" id="guides">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Investor Guides</h2>
+        <p class="section-desc">Practical guides for buying property at auction</p>
+      </div>
+      <div class="guides-grid">
+
+        <div class="guide-card" data-guide="1">
+          <div class="guide-card-header">
+            <div class="guide-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><path d="M9 14l2 2 4-4"/></svg>
+            </div>
+            <h3>First-Time Auction Buyer Checklist</h3>
+            <svg class="guide-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="guide-card-body">
+            <ol>
+              <li><strong>Research the auction house</strong> - understand their terms, buyer's premium, and format</li>
+              <li><strong>Register to bid</strong> - most houses require advance registration with ID</li>
+              <li><strong>Get finance pre-approved</strong> - secure a bridging loan decision in principle before auction day</li>
+              <li><strong>Instruct a solicitor</strong> - have them review the legal pack before you bid</li>
+              <li><strong>Arrange a survey</strong> - view the property and assess its condition</li>
+              <li><strong>Set your maximum bid</strong> - include ALL costs: stamp duty, legal fees, buyer's premium, refurb</li>
+              <li><strong>Prepare your deposit</strong> - typically 10% of the hammer price, payable on the day</li>
+              <li><strong>Attend as observer first</strong> - watch an auction before bidding to learn the rhythm</li>
+              <li><strong>Bid decisively</strong> - confident, clear bids show you're serious</li>
+              <li><strong>Have your solicitor on standby</strong> - exchange happens immediately after the hammer falls</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="guide-card" data-guide="2">
+          <div class="guide-card-header">
+            <div class="guide-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+            </div>
+            <h3>How to Read a Legal Pack</h3>
+            <svg class="guide-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="guide-card-body">
+            <p>The legal pack is the most important document in any auction purchase. Key items to check:</p>
+            <ul>
+              <li><strong>Title deeds</strong> - confirm ownership, boundaries, and any rights of way</li>
+              <li><strong>Special conditions of sale</strong> - look for unusual completion timelines, additional fees, or restrictions</li>
+              <li><strong>Local authority searches</strong> - check for planning issues, conservation areas, or proposed developments</li>
+              <li><strong>Environmental searches</strong> - flood risk, contaminated land, subsidence</li>
+              <li><strong>Leasehold information</strong> - if leasehold, check remaining term, ground rent, service charges</li>
+              <li><strong>Seller's property information form</strong> - disputes, alterations, guarantees</li>
+            </ul>
+            <p><strong>Top tip:</strong> Always have a solicitor review the legal pack. The cost is small compared to the risk of missing something critical.</p>
+          </div>
+        </div>
+
+        <div class="guide-card" data-guide="3">
+          <div class="guide-card-header">
+            <div class="guide-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <h3>Bridging Finance Explained</h3>
+            <svg class="guide-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="guide-card-body">
+            <p>Bridging loans are short-term finance designed for auction purchases and property development.</p>
+            <ul>
+              <li><strong>Typical rates</strong> - from 0.44% per month, depending on LTV and property type</li>
+              <li><strong>LTV</strong> - up to 75% of the property value (some lenders up to 80%)</li>
+              <li><strong>Term</strong> - usually 3-18 months</li>
+              <li><strong>Speed</strong> - funds can be released in as little as 7 days</li>
+              <li><strong>Arrangement fee</strong> - typically 1-2% of the loan amount</li>
+              <li><strong>Exit strategy</strong> - you'll need a clear plan: refinance to mortgage, or sell</li>
+            </ul>
+            <p>Having a bridging loan pre-approved before auction day means you can bid with confidence, knowing you can complete within the required 28-day window.</p>
+            <div class="guide-cta">
+              <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-sm" target="_blank" rel="noopener">
+                Get Pre-Approved Now
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-card" data-guide="4">
+          <div class="guide-card-header">
+            <div class="guide-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+            </div>
+            <h3>Assessing Property Condition</h3>
+            <svg class="guide-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="guide-card-body">
+            <p>What to look for when viewing an auction lot:</p>
+            <ul>
+              <li><strong>Structural issues</strong> - cracks in walls, sagging roofline, damp patches, bowing walls</li>
+              <li><strong>Roof condition</strong> - missing tiles, lead flashing condition, gutter state</li>
+              <li><strong>Electrics & plumbing</strong> - age of systems, visible wiring condition, boiler type and age</li>
+              <li><strong>Damp & timber</strong> - rising damp, penetrating damp, woodworm, dry rot</li>
+              <li><strong>Windows & doors</strong> - single/double glazed, frame condition, draughts</li>
+              <li><strong>External areas</strong> - boundary walls, drainage, access, Japanese knotweed</li>
+            </ul>
+            <p><strong>Budget rule of thumb:</strong> For heavy refurb projects, budget &pound;1,000-1,500/sqm. For light refurb, &pound;300-600/sqm.</p>
+          </div>
+        </div>
+
+        <div class="guide-card" data-guide="5">
+          <div class="guide-card-header">
+            <div class="guide-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </div>
+            <h3>Understanding Auction Fees</h3>
+            <svg class="guide-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="guide-card-body">
+            <p>The hammer price is just the starting point. Here are the fees to budget for:</p>
+            <ul>
+              <li><strong>Buyer's premium</strong> - 0% to 4.2% (inc. VAT) depending on the auction house</li>
+              <li><strong>Admin/reservation fee</strong> - some online auctions charge &pound;5,000-6,000+ for conditional sales</li>
+              <li><strong>Stamp Duty (SDLT)</strong> - standard rates apply, plus 5% surcharge for additional properties</li>
+              <li><strong>Legal fees</strong> - solicitor costs &pound;1,000-2,500 for a standard auction purchase</li>
+              <li><strong>Survey</strong> - &pound;300-800 depending on type and property size</li>
+              <li><strong>Bridging finance costs</strong> - arrangement fee (1-2%) plus monthly interest</li>
+            </ul>
+            <p><strong>Example:</strong> A &pound;150,000 hammer price lot could cost &pound;170,000-180,000 all-in once you include all fees and taxes.</p>
+          </div>
+        </div>
+
+        <div class="guide-card" data-guide="6">
+          <div class="guide-card-header">
+            <div class="guide-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <h3>Post-Auction: What Happens Next</h3>
+            <svg class="guide-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="guide-card-body">
+            <p>The 28-day countdown to completion starts the moment the hammer falls:</p>
+            <ul>
+              <li><strong>Day 0 (Auction day)</strong> - pay 10% deposit, exchange contracts, sign memorandum of sale</li>
+              <li><strong>Days 1-3</strong> - instruct solicitor to proceed, confirm bridging loan application</li>
+              <li><strong>Days 3-10</strong> - lender valuation arranged and completed</li>
+              <li><strong>Days 10-20</strong> - lender issues formal offer, solicitor completes searches</li>
+              <li><strong>Days 20-25</strong> - final checks, funds drawn down from lender</li>
+              <li><strong>Day 28</strong> - completion deadline. The remaining 90% is paid, keys are released</li>
+            </ul>
+            <p><strong>Critical:</strong> If you fail to complete, you lose your deposit AND may be liable for the seller's losses. Always have finance confirmed before bidding.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== -->
   <!-- 4. INVESTOR TIPS -->
   <!-- ==================== -->
   <section class="tips-section" id="auction-tips">
@@ -536,8 +636,9 @@
         </div>
         <div class="footer-col">
           <h4>Resources</h4>
-          <a href="#how-it-works">How Auction Finance Works</a>
+          <a href="#auction-results">Auction Results</a>
           <a href="#calendar">Auction Calendar</a>
+          <a href="#guides">Investor Guides</a>
           <a href="#auction-tips">Investor Tips</a>
           <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" target="_blank" rel="noopener">Apply for Bridging Finance</a>
         </div>
@@ -589,6 +690,13 @@
     </a>
   </aside>
 
+  <!-- Recently Viewed Bar -->
+  <div class="recently-viewed-bar" id="recentlyViewedBar" style="display:none">
+    <div class="rv-label">Recently Viewed</div>
+    <div class="rv-chips" id="rvChips"></div>
+    <button class="rv-clear" id="rvClearAll">Clear all</button>
+  </div>
+
   <!-- Back to Top Button -->
   <button class="back-to-top" id="backToTop" aria-label="Back to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
@@ -596,6 +704,7 @@
 
   <script src="data.js"></script>
   <script src="calendar-data.js"></script>
+  <script src="results-data.js"></script>
   <script src="app.js"></script>
   <script src="lots.js"></script>
   <script src="loan-calc.js"></script>
