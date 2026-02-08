@@ -83,56 +83,6 @@
   </section>
 
 
-  <!-- Budget Property Matcher -->
-  <section class="budget-matcher" id="budgetMatcher">
-    <div class="container">
-      <div class="bm-inner">
-        <div class="bm-left">
-          <h2 class="bm-title">Find Properties in Your Budget</h2>
-          <p class="bm-desc">Enter your approved loan amount or calculate your maximum budget to see matching auction lots.</p>
-          <div class="bm-tabs">
-            <button class="bm-tab active" data-bm-tab="preapproval">I Have Pre-Approval</button>
-            <button class="bm-tab" data-bm-tab="calculate">Calculate My Budget</button>
-          </div>
-          <div class="bm-tab-panel active" id="bmPreapproval">
-            <label class="bm-label">Approved Loan Amount</label>
-            <div class="bm-input-row">
-              <span class="bm-currency">&pound;</span>
-              <input type="number" id="bmLoanAmount" class="bm-input" placeholder="e.g. 150000" min="10000" step="5000">
-            </div>
-            <button class="btn btn-accent bm-go" id="bmGoPreapproval">Find Matching Properties</button>
-          </div>
-          <div class="bm-tab-panel" id="bmCalculate">
-            <div class="bm-calc-grid">
-              <div>
-                <label class="bm-label">Your Deposit</label>
-                <div class="bm-input-row">
-                  <span class="bm-currency">&pound;</span>
-                  <input type="number" id="bmDeposit" class="bm-input" placeholder="e.g. 50000" min="5000" step="1000">
-                </div>
-              </div>
-              <div>
-                <label class="bm-label">Target Property Value</label>
-                <div class="bm-input-row">
-                  <span class="bm-currency">&pound;</span>
-                  <input type="number" id="bmTargetValue" class="bm-input" placeholder="e.g. 200000" min="10000" step="5000">
-                </div>
-              </div>
-            </div>
-            <button class="btn btn-accent bm-go" id="bmGoCalculate">Calculate &amp; Match</button>
-          </div>
-          <p class="bm-footnote">Don't have pre-approval yet? <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" target="_blank" rel="noopener">Get pre-approved in 5 minutes</a></p>
-        </div>
-        <div class="bm-right" id="bmResults">
-          <div class="bm-placeholder">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <p>Enter your budget to see matching properties</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Auction Event Ticker -->
   <div class="event-ticker" id="eventTicker">
     <div class="event-ticker-label">
