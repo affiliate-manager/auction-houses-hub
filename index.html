@@ -280,7 +280,14 @@
           </select>
         </div>
       </div>
-      <div class="ll-status" id="llStatus"></div>
+      <div class="ll-status-row">
+        <div class="ll-status" id="llStatus"></div>
+        <div class="ll-updated" id="llUpdated" style="display:none"></div>
+      </div>
+      <div class="ll-notice" id="llNotice" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        Showing sample data - live lots will load when connected to the API
+      </div>
       <div class="ll-grid" id="llGrid">
         <!-- Rendered by JS -->
       </div>

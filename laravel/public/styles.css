@@ -2697,10 +2697,32 @@ select { font-family: inherit; }
   gap: 8px;
 }
 .ll-price-range .bm-input-row { width: 160px; }
+.ll-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
 .ll-status {
   font-size: 0.82rem;
   color: var(--text-light);
+}
+.ll-updated {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  opacity: 0.7;
+}
+.ll-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
   margin-bottom: 16px;
+  background: #fef3cd;
+  border: 1px solid #ffc107;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  color: #856404;
 }
 .ll-grid {
   display: grid;
