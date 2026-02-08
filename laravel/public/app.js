@@ -633,6 +633,27 @@ function hideEventPanel() {
   document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
 }
 
+function navigateToCalendarEvent(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  // Set calendar to the correct month/year
+  calCurrentMonth = d.getMonth();
+  calCurrentYear = d.getFullYear();
+  // Reset filters so the event is visible
+  if (calFilterRegion) calFilterRegion.value = '';
+  if (calFilterHouse) calFilterHouse.value = '';
+  // Re-render calendar with correct month
+  renderCalendar();
+  // Scroll to calendar section
+  const calSection = document.getElementById('calendar');
+  if (calSection) {
+    calSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // Show event panel for that date after a short delay (to allow scroll)
+  setTimeout(() => {
+    showEventsForDate(dateStr);
+  }, 400);
+}
+
 function renderOngoingAuctioneers() {
   if (!calOngoingGrid || typeof ONGOING_ONLINE_AUCTIONEERS === 'undefined') return;
   let html = '';
@@ -800,7 +821,7 @@ function initEventTicker() {
       const dateStr = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
       const typeClass = e.type.toLowerCase() === 'room' ? 'room' : 'online';
       const name = e.house.length > 25 ? e.house.substring(0, 23) + '..' : e.house;
-      return `<div class="event-ticker-item">
+      return `<div class="event-ticker-item" onclick="navigateToCalendarEvent('${e.date}')" style="cursor:pointer">
         <span class="event-ticker-date">${dateStr}</span>
         <span class="event-ticker-type ${typeClass}">${e.type}</span>
         <span>${name}</span>
