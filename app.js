@@ -307,74 +307,97 @@ function createInlineCTA(index) {
 // Modal Helpers
 // ===========================
 function buildModalUpcomingEvents(h) {
-  if (typeof AUCTION_EVENTS === 'undefined') return '';
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const events = AUCTION_EVENTS
-    .filter(e => (e.houseId === h.id || e.house === h.name) && new Date(e.date + 'T00:00:00') >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 6);
-  if (events.length === 0) return '';
-
   const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const rows = events.map(e => {
-    const d = new Date(e.date + 'T00:00:00');
-    const dateStr = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-    const typeClass = e.type.toLowerCase();
-    return `<tr>
-      <td><strong>${dateStr}</strong></td>
-      <td>${e.time}</td>
-      <td><span class="cal-event-type-badge ${typeClass}">${e.type}</span></td>
-      <td>${e.region}</td>
-      <td class="modal-event-notes">${e.notes}</td>
-    </tr>`;
-  }).join('');
+
+  let events = [];
+  if (typeof AUCTION_EVENTS !== 'undefined') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    events = AUCTION_EVENTS
+      .filter(e => (e.houseId === h.id || e.house === h.name) && new Date(e.date + 'T00:00:00') >= today)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 6);
+  }
+
+  let bodyContent;
+  if (events.length === 0) {
+    bodyContent = `<div class="modal-empty-state">
+      <p>No scheduled auction dates available. Visit the auction house website for the latest catalogue.</p>
+      <a href="${h.url}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+        View Current Lots on ${h.name}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+      </a>
+    </div>`;
+  } else {
+    const rows = events.map(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      const dateStr = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+      const typeClass = e.type.toLowerCase();
+      return `<tr>
+        <td><strong>${dateStr}</strong></td>
+        <td>${e.time}</td>
+        <td><span class="cal-event-type-badge ${typeClass}">${e.type}</span></td>
+        <td>${e.region}</td>
+        <td class="modal-event-notes">${e.notes}</td>
+      </tr>`;
+    }).join('');
+    bodyContent = `<table class="modal-events-table">
+      <thead><tr><th>Date</th><th>Time</th><th>Format</th><th>Region</th><th>Details</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
 
   return `
     <div class="modal-listings-section">
       <h4>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        Upcoming Auctions (${events.length})
+        Upcoming Auctions ${events.length ? '(' + events.length + ')' : ''}
       </h4>
-      <table class="modal-events-table">
-        <thead><tr><th>Date</th><th>Time</th><th>Format</th><th>Region</th><th>Details</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      ${bodyContent}
     </div>`;
 }
 
 function buildModalRecentResults(h) {
-  if (typeof AUCTION_RESULTS === 'undefined') return '';
-  const results = AUCTION_RESULTS
-    .filter(r => r.houseId === h.id || r.house === h.name)
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 6);
-  if (results.length === 0) return '';
+  let results = [];
+  if (typeof AUCTION_RESULTS !== 'undefined') {
+    results = AUCTION_RESULTS
+      .filter(r => r.houseId === h.id || r.house === h.name)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 6);
+  }
 
-  const rows = results.map(r => {
-    const diff = ((r.salePrice - r.guidePrice) / r.guidePrice) * 100;
-    const diffClass = diff >= 0 ? 'positive' : 'negative';
-    const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(0) + '%';
-    return `<tr>
-      <td class="modal-result-address">${r.address}</td>
-      <td>${r.type}</td>
-      <td>&pound;${r.guidePrice.toLocaleString()}</td>
-      <td><strong>&pound;${r.salePrice.toLocaleString()}</strong></td>
-      <td class="${diffClass}">${diffStr}</td>
-    </tr>`;
-  }).join('');
+  let bodyContent;
+  if (results.length === 0) {
+    bodyContent = `<div class="modal-empty-state">
+      <p>No recent results tracked for this auction house yet.</p>
+    </div>`;
+  } else {
+    const rows = results.map(r => {
+      const diff = ((r.salePrice - r.guidePrice) / r.guidePrice) * 100;
+      const diffClass = diff >= 0 ? 'positive' : 'negative';
+      const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(0) + '%';
+      return `<tr>
+        <td class="modal-result-address">${r.address}</td>
+        <td>${r.type}</td>
+        <td>&pound;${r.guidePrice.toLocaleString()}</td>
+        <td><strong>&pound;${r.salePrice.toLocaleString()}</strong></td>
+        <td class="${diffClass}">${diffStr}</td>
+      </tr>`;
+    }).join('');
+    bodyContent = `<table class="modal-events-table">
+      <thead><tr><th>Address</th><th>Type</th><th>Guide</th><th>Sold</th><th>+/-</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
 
   return `
     <div class="modal-listings-section">
       <h4>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-        Recent Sold Lots (${results.length})
+        Recent Sold Lots ${results.length ? '(' + results.length + ')' : ''}
       </h4>
-      <table class="modal-events-table">
-        <thead><tr><th>Address</th><th>Type</th><th>Guide</th><th>Sold</th><th>+/-</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+      ${bodyContent}
     </div>`;
 }
 

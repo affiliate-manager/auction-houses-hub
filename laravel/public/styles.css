@@ -1194,6 +1194,15 @@ select { font-family: inherit; }
   font-size: 0.78rem;
   color: var(--text-light);
 }
+.modal-empty-state {
+  padding: 20px;
+  text-align: center;
+}
+.modal-empty-state p {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
 @media (max-width: 768px) {
   .modal-events-table { font-size: 0.75rem; }
   .modal-events-table th, .modal-events-table td { padding: 6px 8px; }
