@@ -395,13 +395,92 @@ function buildModalUpcomingEvents(h) {
     </div>`;
 }
 
+function buildModalAvailableLots(h) {
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Pull from liveLots (API or fallback) + AUCTION_RESULTS with upcoming dates
+  let lots = [];
+  if (typeof liveLots !== 'undefined' && liveLots.length > 0) {
+    lots = liveLots.filter(l => l.houseId === h.id || (l.houseId === 999 && l.title && l.title.toLowerCase().includes(h.name.toLowerCase())));
+  }
+  // Also check AUCTION_RESULTS for this house where we can present as "recent catalogue"
+  // But primarily use liveLots
+
+  if (lots.length === 0) {
+    return `
+      <div class="modal-listings-section">
+        <h4>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Available Lots for Sale
+        </h4>
+        <div class="modal-empty-state">
+          <p>No live lots currently tracked for ${h.name}. Check their website for the latest catalogue.</p>
+          <a href="${h.url}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+            Browse Lots on ${h.name}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          </a>
+        </div>
+      </div>`;
+  }
+
+  const sorted = lots.sort((a, b) => {
+    const da = a.auctionDate || '9999-12-31';
+    const db = b.auctionDate || '9999-12-31';
+    return da.localeCompare(db);
+  }).slice(0, 8);
+
+  const cards = sorted.map(lot => {
+    const price = lot.guidePrice > 0 ? `&pound;${lot.guidePrice.toLocaleString()}` : 'POA';
+    let dateStr = '';
+    if (lot.auctionDate) {
+      const d = new Date(lot.auctionDate + 'T00:00:00');
+      dateStr = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+    }
+    const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : 'Property';
+    const imgHtml = lot.imageUrl
+      ? `<img src="${lot.imageUrl}" alt="" class="mlot-img" loading="lazy" onerror="this.style.display='none'">`
+      : '';
+
+    return `<div class="mlot-card">
+      ${imgHtml}
+      <div class="mlot-body">
+        <div class="mlot-badges">
+          <span class="ll-badge ll-badge-type">${typeLabel}</span>
+          ${lot.region && lot.region !== 'National' ? `<span class="ll-badge ll-badge-region">${lot.region}</span>` : ''}
+          ${lot.bedrooms ? `<span class="ll-badge" style="background:#F3E8FF;color:#7C3AED">${lot.bedrooms} bed</span>` : ''}
+        </div>
+        <div class="mlot-title">${lot.title}</div>
+        ${lot.address && lot.address !== lot.title ? `<div class="mlot-address">${lot.address}</div>` : ''}
+        <div class="mlot-bottom">
+          <span class="mlot-price">${price}</span>
+          ${dateStr ? `<span class="mlot-date">${dateStr}</span>` : ''}
+        </div>
+        <div class="mlot-actions">
+          ${lot.externalUrl ? `<a href="${lot.externalUrl}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">View Details</a>` : ''}
+          <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm" onclick="event.stopPropagation()">Finance This</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="modal-listings-section">
+      <h4>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        Available Lots for Sale (${sorted.length})
+      </h4>
+      <div class="mlot-grid">${cards}</div>
+      ${lots.length > 8 ? `<div style="text-align:center;padding:12px"><a href="#liveLots" class="btn btn-outline btn-sm" onclick="closeModal();document.getElementById('llSearch').value='${h.name}';document.getElementById('llSearch').dispatchEvent(new Event('input'))">View All ${lots.length} Lots</a></div>` : ''}
+    </div>`;
+}
+
 function buildModalRecentResults(h) {
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   let results = [];
   if (typeof AUCTION_RESULTS !== 'undefined') {
     results = AUCTION_RESULTS
       .filter(r => r.houseId === h.id || r.house === h.name)
       .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 6);
+      .slice(0, 8);
   }
 
   let bodyContent;
@@ -410,30 +489,66 @@ function buildModalRecentResults(h) {
       <p>No recent results tracked for this auction house yet.</p>
     </div>`;
   } else {
-    const rows = results.map(r => {
+    const cards = results.map(r => {
       const diff = ((r.salePrice - r.guidePrice) / r.guidePrice) * 100;
-      const diffClass = diff >= 0 ? 'positive' : 'negative';
+      const diffClass = diff >= 0 ? 'sold-premium' : 'sold-discount';
       const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(0) + '%';
-      return `<tr>
-        <td class="modal-result-address">${r.address}</td>
-        <td>${r.type}</td>
-        <td>&pound;${r.guidePrice.toLocaleString()}</td>
-        <td><strong>&pound;${r.salePrice.toLocaleString()}</strong></td>
-        <td class="${diffClass}">${diffStr}</td>
-        <td><button class="finance-icon-btn finance-icon-sm" onclick="event.stopPropagation();showFinanceTooltip(this,${r.salePrice})" title="View finance estimate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></button></td>
-      </tr>`;
+      let dateStr = '';
+      if (r.date) {
+        const d = new Date(r.date + 'T00:00:00');
+        dateStr = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+      }
+      const beds = r.beds ? `${r.beds} bed` : '';
+      return `<div class="msold-card">
+        <div class="msold-diff ${diffClass}">${diffStr}</div>
+        <div class="msold-body">
+          <div class="msold-address">${r.address}</div>
+          <div class="msold-meta">
+            <span class="ll-badge ll-badge-type">${r.type}</span>
+            ${beds ? `<span class="ll-badge" style="background:#F3E8FF;color:#7C3AED">${beds}</span>` : ''}
+            ${dateStr ? `<span class="msold-date">Sold ${dateStr}</span>` : ''}
+          </div>
+          <div class="msold-prices">
+            <div class="msold-price-col">
+              <span class="msold-price-label">Guide</span>
+              <span class="msold-price-value">&pound;${r.guidePrice.toLocaleString()}</span>
+            </div>
+            <div class="msold-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="msold-price-col">
+              <span class="msold-price-label">Sold</span>
+              <span class="msold-price-value msold-sold">&pound;${r.salePrice.toLocaleString()}</span>
+            </div>
+            <button class="finance-icon-btn finance-icon-sm" onclick="event.stopPropagation();showFinanceTooltip(this,${r.salePrice})" title="View finance estimate">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
     }).join('');
-    bodyContent = `<table class="modal-events-table">
-      <thead><tr><th>Address</th><th>Type</th><th>Guide</th><th>Sold</th><th>+/-</th><th></th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+
+    // Summary stats
+    const avgDiff = results.reduce((s, r) => s + ((r.salePrice - r.guidePrice) / r.guidePrice) * 100, 0) / results.length;
+    const avgSale = Math.round(results.reduce((s, r) => s + r.salePrice, 0) / results.length);
+    const aboveGuide = results.filter(r => r.salePrice >= r.guidePrice).length;
+
+    bodyContent = `
+      <div class="msold-stats">
+        <div class="msold-stat"><strong>${results.length}</strong> lots sold</div>
+        <div class="msold-stat"><strong class="${avgDiff >= 0 ? 'positive' : 'negative'}">${avgDiff >= 0 ? '+' : ''}${avgDiff.toFixed(0)}%</strong> avg vs guide</div>
+        <div class="msold-stat"><strong>&pound;${avgSale.toLocaleString()}</strong> avg sale</div>
+        <div class="msold-stat"><strong>${Math.round(aboveGuide / results.length * 100)}%</strong> at/above guide</div>
+      </div>
+      <div class="msold-grid">${cards}</div>
+    `;
   }
 
   return `
     <div class="modal-listings-section">
       <h4>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-        Recent Sold Lots ${results.length ? '(' + results.length + ')' : ''}
+        Recently Sold Properties ${results.length ? '(' + results.length + ')' : ''}
       </h4>
       ${bodyContent}
     </div>`;
@@ -534,8 +649,9 @@ function openModal(h) {
     </div>
     ` : ''}
 
-    ${buildModalUpcomingEvents(h)}
+    ${buildModalAvailableLots(h)}
     ${buildModalRecentResults(h)}
+    ${buildModalUpcomingEvents(h)}
 
     <div class="modal-actions">
       <a href="${h.url}" target="_blank" rel="noopener" class="btn btn-primary">
