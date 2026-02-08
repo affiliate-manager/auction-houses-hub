@@ -235,9 +235,22 @@ function createCardHTML(h) {
       </div>
     </div>
     <p class="card-desc">${h.desc}</p>
-    <div class="card-tags">
-      <span class="tag ${specClass}">${h.spec}</span>
-      ${h.lots.slice(0, 3).map(l => `<span class="tag">${l}</span>`).join('')}
+    <div class="card-properties">
+      <div class="card-prop-label">Properties offered</div>
+      <div class="card-tags">
+        <span class="tag ${specClass}">${h.spec}</span>
+        ${h.lots.map(l => `<span class="tag">${l}</span>`).join('')}
+      </div>
+      ${h.conditions && h.conditions.length ? `
+      <div class="card-prop-label" style="margin-top:6px">Condition</div>
+      <div class="card-tags">
+        ${h.conditions.map(c => `<span class="tag tag-outline">${c}</span>`).join('')}
+      </div>` : ''}
+      ${h.niches && h.niches.length ? `
+      <div class="card-prop-label" style="margin-top:6px">Specialities</div>
+      <div class="card-tags">
+        ${h.niches.map(n => `<span class="tag tag-niche">${n}</span>`).join('')}
+      </div>` : ''}
     </div>
     <div class="card-stats">
       <div class="card-stat">

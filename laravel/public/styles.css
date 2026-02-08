@@ -572,21 +572,44 @@ select { font-family: inherit; }
   overflow: hidden;
 }
 
+.card-properties {
+  margin-bottom: 16px;
+}
+.card-properties .card-tags {
+  margin-bottom: 0;
+}
+.card-prop-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
 .card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
   margin-bottom: 16px;
 }
 .tag {
   display: inline-block;
-  padding: 4px 10px;
-  font-size: 0.75rem;
+  padding: 3px 8px;
+  font-size: 0.72rem;
   font-weight: 500;
   border-radius: 50px;
   background: var(--bg);
   color: var(--text-secondary);
   border: 1px solid var(--border-light);
+}
+.tag-outline {
+  background: transparent;
+  border-style: dashed;
+}
+.tag-niche {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #FDE68A;
 }
 .tag.spec-residential { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
 .tag.spec-commercial { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
