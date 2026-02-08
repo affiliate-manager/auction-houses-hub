@@ -1136,6 +1136,71 @@ select { font-family: inherit; }
   margin-top: 8px;
 }
 
+.modal-listings-section {
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.modal-listings-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--bg-light);
+  border-bottom: 1px solid var(--border);
+}
+.modal-listings-section h4 svg { color: var(--accent); flex-shrink: 0; }
+.modal-events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.modal-events-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-light);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.modal-events-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text);
+}
+.modal-events-table tr:last-child td { border-bottom: none; }
+.modal-events-table tr:hover td { background: rgba(21,62,96,0.02); }
+.modal-events-table .positive { color: var(--success); font-weight: 600; }
+.modal-events-table .negative { color: var(--error); font-weight: 600; }
+.modal-result-address {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.modal-event-notes {
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.78rem;
+  color: var(--text-light);
+}
+@media (max-width: 768px) {
+  .modal-events-table { font-size: 0.75rem; }
+  .modal-events-table th, .modal-events-table td { padding: 6px 8px; }
+  .modal-event-notes { display: none; }
+  .modal-result-address { max-width: 120px; }
+}
+
 .modal-actions {
   display: flex;
   gap: 12px;
