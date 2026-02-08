@@ -32,10 +32,11 @@
       <nav class="nav" id="nav">
         <a href="#how-it-works" class="nav-link">Auction Finance</a>
         <a href="#directory" class="nav-link">Directory</a>
+        <a href="#liveLots" class="nav-link">Live Lots</a>
         <a href="#auction-results" class="nav-link">Results</a>
         <a href="#priceMap" class="nav-link">Map</a>
         <a href="#calendar" class="nav-link">Calendar</a>
-        <a href="#guides" class="nav-link">Guides</a>
+        <a href="#investorToolkit" class="nav-link">Toolkit</a>
         <a href="#auction-tips" class="nav-link">Tips</a>
       </nav>
       <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
@@ -81,6 +82,56 @@
     </div>
   </section>
 
+
+  <!-- Budget Property Matcher -->
+  <section class="budget-matcher" id="budgetMatcher">
+    <div class="container">
+      <div class="bm-inner">
+        <div class="bm-left">
+          <h2 class="bm-title">Find Properties in Your Budget</h2>
+          <p class="bm-desc">Enter your approved loan amount or calculate your maximum budget to see matching auction lots.</p>
+          <div class="bm-tabs">
+            <button class="bm-tab active" data-bm-tab="preapproval">I Have Pre-Approval</button>
+            <button class="bm-tab" data-bm-tab="calculate">Calculate My Budget</button>
+          </div>
+          <div class="bm-tab-panel active" id="bmPreapproval">
+            <label class="bm-label">Approved Loan Amount</label>
+            <div class="bm-input-row">
+              <span class="bm-currency">&pound;</span>
+              <input type="number" id="bmLoanAmount" class="bm-input" placeholder="e.g. 150000" min="10000" step="5000">
+            </div>
+            <button class="btn btn-accent bm-go" id="bmGoPreapproval">Find Matching Properties</button>
+          </div>
+          <div class="bm-tab-panel" id="bmCalculate">
+            <div class="bm-calc-grid">
+              <div>
+                <label class="bm-label">Your Deposit</label>
+                <div class="bm-input-row">
+                  <span class="bm-currency">&pound;</span>
+                  <input type="number" id="bmDeposit" class="bm-input" placeholder="e.g. 50000" min="5000" step="1000">
+                </div>
+              </div>
+              <div>
+                <label class="bm-label">Target Property Value</label>
+                <div class="bm-input-row">
+                  <span class="bm-currency">&pound;</span>
+                  <input type="number" id="bmTargetValue" class="bm-input" placeholder="e.g. 200000" min="10000" step="5000">
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-accent bm-go" id="bmGoCalculate">Calculate &amp; Match</button>
+          </div>
+          <p class="bm-footnote">Don't have pre-approval yet? <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" target="_blank" rel="noopener">Get pre-approved in 5 minutes</a></p>
+        </div>
+        <div class="bm-right" id="bmResults">
+          <div class="bm-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <p>Enter your budget to see matching properties</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Auction Event Ticker -->
   <div class="event-ticker" id="eventTicker">
@@ -228,6 +279,70 @@
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M8 8l6 6M14 8l-6 6"/></svg>
         <h3>No auction houses match your filters</h3>
         <p>Try adjusting your filters or <button class="link-btn" id="clearFiltersAlt">clear all filters</button></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Auction Lots -->
+  <section class="live-lots-section" id="liveLots">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Live Auction Lots</h2>
+        <p class="section-desc">Browse current property auction lots across the UK - updated every 6 hours</p>
+      </div>
+      <div class="ll-filters">
+        <div class="ll-search-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="llSearch" class="bm-input" placeholder="Search lots by title or location..." autocomplete="off">
+        </div>
+        <div class="ll-filter-row">
+          <select id="llFilterType" class="filter-select">
+            <option value="">All Types</option>
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="land">Land</option>
+          </select>
+          <select id="llFilterRegion" class="filter-select">
+            <option value="">All Regions</option>
+            <option value="London">London</option>
+            <option value="South East">South East</option>
+            <option value="South West">South West</option>
+            <option value="East Anglia">East Anglia</option>
+            <option value="East Midlands">East Midlands</option>
+            <option value="West Midlands">West Midlands</option>
+            <option value="North West">North West</option>
+            <option value="North East">North East</option>
+            <option value="Yorkshire">Yorkshire</option>
+            <option value="Wales">Wales</option>
+            <option value="Scotland">Scotland</option>
+          </select>
+          <div class="ll-price-range">
+            <label class="bm-label" style="margin:0">Max Price</label>
+            <div class="bm-input-row" style="margin:0">
+              <span class="bm-currency">&pound;</span>
+              <input type="number" id="llMaxPrice" class="bm-input" placeholder="No limit" min="0" step="10000">
+            </div>
+          </div>
+          <select id="llSort" class="filter-select">
+            <option value="date">Soonest Auction</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="ll-status" id="llStatus"></div>
+      <div class="ll-grid" id="llGrid">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="ll-load-more" id="llLoadMore" style="display:none">
+        <button class="btn btn-outline" id="llLoadMoreBtn">Load More Lots</button>
+      </div>
+      <div class="ll-cta">
+        <p>Found a lot you like?</p>
+        <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-sm" target="_blank" rel="noopener">
+          Secure Your Auction Finance
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
     </div>
   </section>
@@ -573,6 +688,120 @@
   </section>
 
   <!-- ==================== -->
+  <!-- INVESTOR TOOLKIT -->
+  <!-- ==================== -->
+  <section class="toolkit-section" id="investorToolkit">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Investor Toolkit</h2>
+        <p class="section-desc">Calculate all costs before you bid - SDLT, total purchase cost, yield, and flip ROI</p>
+      </div>
+      <div class="tk-tabs">
+        <button class="tk-tab active" data-tk-tab="sdlt">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          SDLT Calculator
+        </button>
+        <button class="tk-tab" data-tk-tab="truecost">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          True Cost
+        </button>
+        <button class="tk-tab" data-tk-tab="yield">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Rental Yield
+        </button>
+        <button class="tk-tab" data-tk-tab="flip">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Flip / ROI
+        </button>
+      </div>
+      <div class="tk-body">
+        <!-- SDLT Calculator -->
+        <div class="tk-panel active" id="tkSdlt">
+          <div class="tk-form">
+            <div class="tk-field">
+              <label class="bm-label">Purchase Price</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkSdltPrice" class="bm-input" placeholder="e.g. 200000" min="0" step="5000"></div>
+            </div>
+            <div class="tk-field tk-checkbox">
+              <label><input type="checkbox" id="tkSdltAdditional"> This is an additional property (5% surcharge)</label>
+            </div>
+            <button class="btn btn-primary" id="tkSdltCalc">Calculate SDLT</button>
+          </div>
+          <div class="tk-result" id="tkSdltResult"></div>
+        </div>
+        <!-- True Cost Calculator -->
+        <div class="tk-panel" id="tkTruecost">
+          <div class="tk-form">
+            <div class="tk-field">
+              <label class="bm-label">Hammer Price</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkTcHammer" class="bm-input" placeholder="e.g. 150000" min="0" step="5000"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Buyer's Premium (%)</label>
+              <input type="number" id="tkTcPremium" class="bm-input" placeholder="e.g. 2" min="0" max="10" step="0.1" value="2">
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Legal Fees</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkTcLegal" class="bm-input" placeholder="1500" min="0" step="100" value="1500"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Survey Cost</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkTcSurvey" class="bm-input" placeholder="500" min="0" step="50" value="500"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Refurb Estimate</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkTcRefurb" class="bm-input" placeholder="0" min="0" step="1000" value="0"></div>
+            </div>
+            <div class="tk-field tk-checkbox">
+              <label><input type="checkbox" id="tkTcAdditional" checked> Additional property (SDLT surcharge)</label>
+            </div>
+            <button class="btn btn-primary" id="tkTcCalc">Calculate True Cost</button>
+          </div>
+          <div class="tk-result" id="tkTcResult"></div>
+        </div>
+        <!-- Rental Yield Calculator -->
+        <div class="tk-panel" id="tkYield">
+          <div class="tk-form">
+            <div class="tk-field">
+              <label class="bm-label">Total Purchase Cost</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkYieldCost" class="bm-input" placeholder="e.g. 180000" min="0" step="5000"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Monthly Rent</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkYieldRent" class="bm-input" placeholder="e.g. 850" min="0" step="25"></div>
+            </div>
+            <button class="btn btn-primary" id="tkYieldCalc">Calculate Yield</button>
+          </div>
+          <div class="tk-result" id="tkYieldResult"></div>
+        </div>
+        <!-- Flip / ROI Calculator -->
+        <div class="tk-panel" id="tkFlip">
+          <div class="tk-form">
+            <div class="tk-field">
+              <label class="bm-label">Purchase Price</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkFlipPurchase" class="bm-input" placeholder="e.g. 120000" min="0" step="5000"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Refurb Budget</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkFlipRefurb" class="bm-input" placeholder="e.g. 30000" min="0" step="1000"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Target Sale Price</label>
+              <div class="bm-input-row"><span class="bm-currency">&pound;</span><input type="number" id="tkFlipSale" class="bm-input" placeholder="e.g. 200000" min="0" step="5000"></div>
+            </div>
+            <div class="tk-field">
+              <label class="bm-label">Holding Period (months)</label>
+              <input type="number" id="tkFlipMonths" class="bm-input" placeholder="e.g. 6" min="1" max="24" step="1" value="6">
+            </div>
+            <button class="btn btn-primary" id="tkFlipCalc">Calculate ROI</button>
+          </div>
+          <div class="tk-result" id="tkFlipResult"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== -->
   <!-- 4. INVESTOR TIPS -->
   <!-- ==================== -->
   <section class="tips-section" id="auction-tips">
@@ -663,10 +892,11 @@
         </div>
         <div class="footer-col">
           <h4>Resources</h4>
+          <a href="#liveLots">Live Lots</a>
           <a href="#auction-results">Auction Results</a>
           <a href="#priceMap">Price Map</a>
           <a href="#calendar">Auction Calendar</a>
-          <a href="#guides">Investor Guides</a>
+          <a href="#investorToolkit">Investor Toolkit</a>
           <a href="#auction-tips">Investor Tips</a>
           <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" target="_blank" rel="noopener">Apply for Bridging Finance</a>
         </div>

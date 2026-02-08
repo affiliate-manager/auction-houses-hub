@@ -58,6 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initPriceMap();
   // Finance tooltip
   initFinanceTooltip();
+  // Live auction lots
+  initLiveLots();
+  // Budget matcher
+  initBudgetMatcher();
+  // Investor toolkit
+  initInvestorToolkit();
 });
 
 // ===========================
@@ -1631,4 +1637,549 @@ function showFinanceTooltip(btn, price) {
   tooltip.style.top = (rect.bottom + scrollTop + 8) + 'px';
   tooltip.style.left = Math.max(16, Math.min(rect.left + scrollLeft - 100, window.innerWidth - 320)) + 'px';
   tooltip.classList.add('active');
+}
+
+// ===========================
+// Live Auction Lots
+// ===========================
+let liveLots = [];
+let llPage = 0;
+const LL_PER_PAGE = 12;
+
+function initLiveLots() {
+  const grid = document.getElementById('llGrid');
+  if (!grid) return;
+
+  // Determine API base: use API when on production, fallback to static data locally
+  const apiBase = (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
+    ? '/api' : null;
+
+  if (apiBase) {
+    fetchLiveLots(apiBase);
+  } else {
+    // Fallback: use AUCTION_RESULTS data to simulate live lots
+    loadFallbackLots();
+  }
+
+  // Filter listeners
+  const search = document.getElementById('llSearch');
+  const typeFilter = document.getElementById('llFilterType');
+  const regionFilter = document.getElementById('llFilterRegion');
+  const maxPrice = document.getElementById('llMaxPrice');
+  const sort = document.getElementById('llSort');
+  const loadMoreBtn = document.getElementById('llLoadMoreBtn');
+
+  if (search) search.addEventListener('input', debounce(renderLiveLots, 300));
+  if (typeFilter) typeFilter.addEventListener('change', renderLiveLots);
+  if (regionFilter) regionFilter.addEventListener('change', renderLiveLots);
+  if (maxPrice) maxPrice.addEventListener('input', debounce(renderLiveLots, 500));
+  if (sort) sort.addEventListener('change', renderLiveLots);
+  if (loadMoreBtn) loadMoreBtn.addEventListener('click', () => { llPage++; renderLiveLots(true); });
+}
+
+async function fetchLiveLots(apiBase) {
+  const status = document.getElementById('llStatus');
+  if (status) status.textContent = 'Loading live lots...';
+  try {
+    const res = await fetch(`${apiBase}/lots?status=upcoming&per_page=200`);
+    if (!res.ok) throw new Error('API unavailable');
+    const data = await res.json();
+    liveLots = (data.data || data).map(lot => ({
+      id: lot.id,
+      title: lot.title,
+      address: lot.address || lot.title,
+      region: lot.region || 'National',
+      type: lot.property_type || 'residential',
+      guidePrice: lot.guide_price_low || 0,
+      auctionDate: lot.auction_date,
+      imageUrl: lot.image_url,
+      externalUrl: lot.external_url,
+      houseId: lot.auction_house_id,
+      bedrooms: lot.bedrooms,
+      condition: lot.lot_condition
+    }));
+    if (status) status.textContent = `${liveLots.length} lots found`;
+    renderLiveLots();
+  } catch (err) {
+    loadFallbackLots();
+  }
+}
+
+function loadFallbackLots() {
+  const status = document.getElementById('llStatus');
+  // Build from AUCTION_RESULTS if available
+  if (typeof AUCTION_RESULTS !== 'undefined' && AUCTION_RESULTS.length > 0) {
+    liveLots = AUCTION_RESULTS.map((r, i) => ({
+      id: i + 1,
+      title: r.address,
+      address: r.address,
+      region: r.region || 'National',
+      type: (r.type || 'Residential').toLowerCase(),
+      guidePrice: r.guidePrice,
+      auctionDate: r.date || null,
+      imageUrl: null,
+      externalUrl: null,
+      houseId: r.houseId || 0,
+      bedrooms: null,
+      condition: null
+    }));
+    const notice = document.querySelector('.ll-fallback-notice');
+    if (!notice) {
+      const grid = document.getElementById('llGrid');
+      if (grid) {
+        const div = document.createElement('div');
+        div.className = 'll-fallback-notice';
+        div.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg> Showing sample data - live lots will load when connected to the API';
+        grid.parentNode.insertBefore(div, grid);
+      }
+    }
+  } else {
+    liveLots = [];
+  }
+  if (status) status.textContent = `${liveLots.length} lots available`;
+  renderLiveLots();
+}
+
+function getFilteredLiveLots() {
+  const search = (document.getElementById('llSearch')?.value || '').toLowerCase().trim();
+  const typeVal = document.getElementById('llFilterType')?.value || '';
+  const regionVal = document.getElementById('llFilterRegion')?.value || '';
+  const maxPrice = parseInt(document.getElementById('llMaxPrice')?.value) || 0;
+  const sortVal = document.getElementById('llSort')?.value || 'date';
+
+  let filtered = liveLots.filter(lot => {
+    if (search && !lot.title.toLowerCase().includes(search) && !lot.address.toLowerCase().includes(search)) return false;
+    if (typeVal && lot.type !== typeVal) return false;
+    if (regionVal && lot.region !== regionVal) return false;
+    if (maxPrice > 0 && lot.guidePrice > maxPrice) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (sortVal === 'price_asc') return (a.guidePrice || 0) - (b.guidePrice || 0);
+    if (sortVal === 'price_desc') return (b.guidePrice || 0) - (a.guidePrice || 0);
+    // Default: soonest auction date
+    const da = a.auctionDate || '9999-12-31';
+    const db = b.auctionDate || '9999-12-31';
+    return da.localeCompare(db);
+  });
+
+  return filtered;
+}
+
+function renderLiveLots(append) {
+  const grid = document.getElementById('llGrid');
+  const status = document.getElementById('llStatus');
+  const loadMore = document.getElementById('llLoadMore');
+  if (!grid) return;
+
+  if (!append) llPage = 0;
+
+  const filtered = getFilteredLiveLots();
+  const total = filtered.length;
+  const display = filtered.slice(0, (llPage + 1) * LL_PER_PAGE);
+
+  if (status) status.textContent = `Showing ${display.length} of ${total} lots`;
+  if (loadMore) loadMore.style.display = display.length < total ? 'block' : 'none';
+
+  if (total === 0) {
+    grid.innerHTML = '<div class="ll-no-results"><p>No lots match your filters. Try adjusting your search criteria.</p></div>';
+    return;
+  }
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  grid.innerHTML = display.map(lot => {
+    const price = lot.guidePrice > 0 ? `&pound;${lot.guidePrice.toLocaleString()}` : 'POA';
+    let dateStr = '';
+    if (lot.auctionDate) {
+      const d = new Date(lot.auctionDate + 'T00:00:00');
+      dateStr = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+    }
+    const typeLabel = lot.type.charAt(0).toUpperCase() + lot.type.slice(1);
+    const imgHtml = lot.imageUrl
+      ? `<img class="ll-card-img" src="${lot.imageUrl}" alt="${lot.title}" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="ll-card-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-light)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>`;
+
+    return `<div class="ll-card">
+      ${imgHtml}
+      <div class="ll-card-body">
+        <div class="ll-card-badges">
+          <span class="ll-badge ll-badge-type">${typeLabel}</span>
+          ${lot.region !== 'National' ? `<span class="ll-badge ll-badge-region">${lot.region}</span>` : ''}
+          ${lot.bedrooms ? `<span class="ll-badge" style="background:#F3E8FF;color:#7C3AED">${lot.bedrooms} bed</span>` : ''}
+        </div>
+        <div class="ll-card-title">${lot.title}</div>
+        ${lot.address !== lot.title ? `<div class="ll-card-address">${lot.address}</div>` : ''}
+        <div class="ll-card-bottom">
+          <span class="ll-card-price">${price}</span>
+          <span class="ll-card-date">${dateStr ? `<strong>${dateStr}</strong>Auction Date` : ''}</span>
+        </div>
+      </div>
+      <div class="ll-card-actions">
+        ${lot.externalUrl ? `<a href="${lot.externalUrl}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">View Lot</a>` : '<span></span>'}
+        <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">Finance This</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===========================
+// Budget Property Matcher
+// ===========================
+function initBudgetMatcher() {
+  // Tab switching
+  document.querySelectorAll('.bm-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.bm-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.bm-tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.bmTab;
+      const panel = document.getElementById(target === 'preapproval' ? 'bmPreapproval' : 'bmCalculate');
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // Pre-approval button
+  const goPreapproval = document.getElementById('bmGoPreapproval');
+  if (goPreapproval) {
+    goPreapproval.addEventListener('click', () => {
+      const loanAmount = parseInt(document.getElementById('bmLoanAmount')?.value) || 0;
+      if (loanAmount < 10000) { alert('Please enter a loan amount of at least \u00a310,000'); return; }
+      // With 70% LTV, max property price = loan / 0.7
+      const maxPrice = Math.round(loanAmount / 0.7);
+      runBudgetMatch(maxPrice, loanAmount);
+    });
+  }
+
+  // Calculate button
+  const goCalculate = document.getElementById('bmGoCalculate');
+  if (goCalculate) {
+    goCalculate.addEventListener('click', () => {
+      const deposit = parseInt(document.getElementById('bmDeposit')?.value) || 0;
+      const targetValue = parseInt(document.getElementById('bmTargetValue')?.value) || 0;
+      if (deposit < 5000) { alert('Please enter a deposit of at least \u00a35,000'); return; }
+      // Calculate: with 70% LTV, max loan = 70% of target. Budget = deposit + loan
+      const loanAmount = targetValue > 0 ? Math.round(targetValue * 0.7) : Math.round(deposit / 0.3 * 0.7);
+      const maxPrice = deposit + loanAmount;
+      runBudgetMatch(maxPrice, loanAmount);
+    });
+  }
+
+  // Restore last budget from localStorage
+  const savedBudget = localStorage.getItem('budgetMatcherLast');
+  if (savedBudget) {
+    try {
+      const { maxPrice, loanAmount } = JSON.parse(savedBudget);
+      if (maxPrice > 0) runBudgetMatch(maxPrice, loanAmount);
+    } catch(e) {}
+  }
+}
+
+function runBudgetMatch(maxPrice, loanAmount) {
+  const resultsDiv = document.getElementById('bmResults');
+  if (!resultsDiv) return;
+
+  // Save for return visits
+  localStorage.setItem('budgetMatcherLast', JSON.stringify({ maxPrice, loanAmount }));
+
+  const costs = calcBridgingCosts(maxPrice);
+
+  // Find matching lots
+  const matchingLots = liveLots
+    .filter(lot => lot.guidePrice > 0 && lot.guidePrice <= maxPrice)
+    .sort((a, b) => b.guidePrice - a.guidePrice)
+    .slice(0, 4);
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let matchHtml = '';
+  if (matchingLots.length > 0) {
+    matchHtml = `
+      <h4 style="font-size:0.88rem;font-weight:700;margin-bottom:10px;color:var(--primary-dark)">Matching Lots (${matchingLots.length})</h4>
+      <div class="bm-match-grid">
+        ${matchingLots.map(lot => {
+          const price = lot.guidePrice > 0 ? `&pound;${lot.guidePrice.toLocaleString()}` : 'POA';
+          let dateStr = '';
+          if (lot.auctionDate) {
+            const d = new Date(lot.auctionDate + 'T00:00:00');
+            dateStr = `${d.getDate()} ${monthNames[d.getMonth()]}`;
+          }
+          return `<div class="bm-match-card">
+            <div class="bm-match-title">${lot.title}</div>
+            <div class="bm-match-meta">${lot.region}${dateStr ? ' - ' + dateStr : ''}</div>
+            <div class="bm-match-price">${price}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+  } else {
+    matchHtml = `<p style="font-size:0.85rem;color:var(--text-light);text-align:center;padding:12px 0">No lots currently match this budget. Try increasing your budget or check back soon.</p>`;
+  }
+
+  resultsDiv.innerHTML = `
+    <div class="bm-summary">
+      <div class="bm-summary-card">
+        <span class="bm-summary-value">&pound;${maxPrice.toLocaleString()}</span>
+        <span class="bm-summary-label">Max Property Price</span>
+      </div>
+      <div class="bm-summary-card">
+        <span class="bm-summary-value">&pound;${loanAmount.toLocaleString()}</span>
+        <span class="bm-summary-label">Bridging Loan</span>
+      </div>
+      <div class="bm-summary-card">
+        <span class="bm-summary-value">&pound;${costs.monthlyInterest.toLocaleString()}/mo</span>
+        <span class="bm-summary-label">Est. Interest</span>
+      </div>
+    </div>
+    ${matchHtml}
+    <div class="bm-match-cta">
+      <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+        Get Your Exact Quote from Lendlord
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  `;
+}
+
+// ===========================
+// Investor Toolkit
+// ===========================
+function initInvestorToolkit() {
+  // Tab switching
+  document.querySelectorAll('.tk-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tk-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tk-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.tkTab;
+      const panel = document.getElementById('tk' + target.charAt(0).toUpperCase() + target.slice(1));
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // Set placeholders
+  ['tkSdltResult', 'tkTcResult', 'tkYieldResult', 'tkFlipResult'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.innerHTML.trim()) {
+      el.innerHTML = '<div class="tk-result-placeholder">Enter values and click Calculate to see results</div>';
+    }
+  });
+
+  // SDLT Calculator
+  document.getElementById('tkSdltCalc')?.addEventListener('click', calcSDLT);
+
+  // True Cost Calculator
+  document.getElementById('tkTcCalc')?.addEventListener('click', calcTrueCost);
+
+  // Yield Calculator
+  document.getElementById('tkYieldCalc')?.addEventListener('click', calcYield);
+
+  // Flip Calculator
+  document.getElementById('tkFlipCalc')?.addEventListener('click', calcFlip);
+}
+
+function getSDLTAmount(price, isAdditional) {
+  // UK SDLT rates 2025/26
+  const bands = [
+    { threshold: 125000, rate: 0 },
+    { threshold: 250000, rate: 0.02 },
+    { threshold: 925000, rate: 0.05 },
+    { threshold: 1500000, rate: 0.10 },
+    { threshold: Infinity, rate: 0.12 }
+  ];
+  const surcharge = isAdditional ? 0.05 : 0;
+
+  let tax = 0;
+  let prev = 0;
+  const breakdown = [];
+
+  for (const band of bands) {
+    if (price <= prev) break;
+    const taxable = Math.min(price, band.threshold) - prev;
+    if (taxable > 0) {
+      const rate = band.rate + surcharge;
+      const bandTax = Math.round(taxable * rate);
+      tax += bandTax;
+      breakdown.push({
+        from: prev,
+        to: Math.min(price, band.threshold),
+        rate: rate * 100,
+        baseRate: band.rate * 100,
+        tax: bandTax
+      });
+    }
+    prev = band.threshold;
+  }
+
+  return { total: tax, breakdown, surcharge: surcharge * 100 };
+}
+
+function calcSDLT() {
+  const price = parseInt(document.getElementById('tkSdltPrice')?.value) || 0;
+  const isAdditional = document.getElementById('tkSdltAdditional')?.checked || false;
+  const result = document.getElementById('tkSdltResult');
+  if (!result || price <= 0) return;
+
+  const sdlt = getSDLTAmount(price, isAdditional);
+
+  result.innerHTML = `
+    <div class="tk-result-title">SDLT Breakdown</div>
+    <div class="tk-result-rows">
+      ${sdlt.breakdown.map(b => `
+        <div class="tk-row">
+          <span>&pound;${b.from.toLocaleString()} - &pound;${b.to.toLocaleString()} @ ${b.rate.toFixed(1)}%</span>
+          <span>&pound;${b.tax.toLocaleString()}</span>
+        </div>
+      `).join('')}
+      ${isAdditional ? `<div class="tk-row tk-row-highlight"><span>Includes 5% additional property surcharge</span><span></span></div>` : ''}
+      <div class="tk-row tk-row-total">
+        <span>Total SDLT</span>
+        <span>&pound;${sdlt.total.toLocaleString()}</span>
+      </div>
+    </div>
+    <div class="tk-result-cta">
+      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Now calculate your total purchase cost</p>
+      <button class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tk-tab=truecost]').click();document.getElementById('tkTcHammer').value=${price}">Go to True Cost Calculator</button>
+    </div>
+  `;
+}
+
+function calcTrueCost() {
+  const hammer = parseInt(document.getElementById('tkTcHammer')?.value) || 0;
+  const premiumPct = parseFloat(document.getElementById('tkTcPremium')?.value) || 0;
+  const legal = parseInt(document.getElementById('tkTcLegal')?.value) || 0;
+  const survey = parseInt(document.getElementById('tkTcSurvey')?.value) || 0;
+  const refurb = parseInt(document.getElementById('tkTcRefurb')?.value) || 0;
+  const isAdditional = document.getElementById('tkTcAdditional')?.checked || false;
+  const result = document.getElementById('tkTcResult');
+  if (!result || hammer <= 0) return;
+
+  const premium = Math.round(hammer * premiumPct / 100);
+  const sdlt = getSDLTAmount(hammer, isAdditional);
+  const bridging = calcBridgingCosts(hammer);
+  const totalCost = hammer + premium + sdlt.total + legal + survey + refurb + bridging.totalCost;
+
+  result.innerHTML = `
+    <div class="tk-result-title">True Cost Breakdown</div>
+    <div class="tk-result-rows">
+      <div class="tk-row"><span>Hammer Price</span><span>&pound;${hammer.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Buyer's Premium (${premiumPct}%)</span><span>&pound;${premium.toLocaleString()}</span></div>
+      <div class="tk-row"><span>SDLT${isAdditional ? ' (inc. 5% surcharge)' : ''}</span><span>&pound;${sdlt.total.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Legal Fees</span><span>&pound;${legal.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Survey</span><span>&pound;${survey.toLocaleString()}</span></div>
+      ${refurb > 0 ? `<div class="tk-row"><span>Refurbishment</span><span>&pound;${refurb.toLocaleString()}</span></div>` : ''}
+      <div class="tk-row tk-row-highlight"><span>Bridging Finance (${bridging.term}m)</span><span>&pound;${bridging.totalCost.toLocaleString()}</span></div>
+      <div class="tk-row tk-row-total">
+        <span>Total All-In Cost</span>
+        <span>&pound;${totalCost.toLocaleString()}</span>
+      </div>
+    </div>
+    <div class="tk-result-cta">
+      <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+        Finance the Total with Lendlord
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  `;
+}
+
+function calcYield() {
+  const cost = parseInt(document.getElementById('tkYieldCost')?.value) || 0;
+  const rent = parseInt(document.getElementById('tkYieldRent')?.value) || 0;
+  const result = document.getElementById('tkYieldResult');
+  if (!result || cost <= 0 || rent <= 0) return;
+
+  const annualRent = rent * 12;
+  const grossYield = (annualRent / cost) * 100;
+
+  // Estimate net yield: deduct mortgage interest (assume 5.5% on 70% LTV) + 15% running costs
+  const mortgageInterest = cost * 0.7 * 0.055;
+  const runningCosts = annualRent * 0.15;
+  const netIncome = annualRent - mortgageInterest - runningCosts;
+  const netYield = (netIncome / cost) * 100;
+
+  result.innerHTML = `
+    <div class="tk-result-title">Rental Yield Analysis</div>
+    <div class="tk-result-rows">
+      <div class="tk-row"><span>Monthly Rent</span><span>&pound;${rent.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Annual Rent</span><span>&pound;${annualRent.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Total Investment</span><span>&pound;${cost.toLocaleString()}</span></div>
+      <div class="tk-row tk-row-highlight">
+        <span>Gross Yield</span>
+        <span>${grossYield.toFixed(1)}%</span>
+      </div>
+      <div class="tk-row"><span>Est. Mortgage Interest (5.5% on 70% LTV)</span><span>-&pound;${Math.round(mortgageInterest).toLocaleString()}</span></div>
+      <div class="tk-row"><span>Est. Running Costs (15%)</span><span>-&pound;${Math.round(runningCosts).toLocaleString()}</span></div>
+      <div class="tk-row"><span>Net Annual Income</span><span>&pound;${Math.round(netIncome).toLocaleString()}</span></div>
+      <div class="tk-row tk-row-total">
+        <span>Net Yield</span>
+        <span class="${netYield >= 0 ? 'tk-profit-positive' : 'tk-profit-negative'}">${netYield.toFixed(1)}%</span>
+      </div>
+    </div>
+    <div class="tk-result-cta">
+      <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Buy with bridging, refinance to mortgage</p>
+      <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+        Get Bridging Finance
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  `;
+}
+
+function calcFlip() {
+  const purchase = parseInt(document.getElementById('tkFlipPurchase')?.value) || 0;
+  const refurb = parseInt(document.getElementById('tkFlipRefurb')?.value) || 0;
+  const salePrice = parseInt(document.getElementById('tkFlipSale')?.value) || 0;
+  const months = parseInt(document.getElementById('tkFlipMonths')?.value) || 6;
+  const result = document.getElementById('tkFlipResult');
+  if (!result || purchase <= 0 || salePrice <= 0) return;
+
+  const sdlt = getSDLTAmount(purchase, true); // Assume additional property
+  const bridging = calcBridgingCosts(purchase);
+  // Scale bridging costs to actual holding period
+  const actualBridgingInterest = bridging.monthlyInterest * months;
+  const bridgingCosts = actualBridgingInterest + bridging.arrangementFee;
+  const sellingFees = Math.round(salePrice * 0.015); // 1.5% estate agent + legal
+
+  const totalCosts = purchase + refurb + sdlt.total + bridgingCosts + sellingFees;
+  const grossProfit = salePrice - purchase - refurb;
+  const netProfit = salePrice - totalCosts;
+  const roi = (netProfit / (purchase + refurb)) * 100;
+  const annualizedRoi = (roi / months) * 12;
+
+  result.innerHTML = `
+    <div class="tk-result-title">Flip / ROI Analysis</div>
+    <div class="tk-result-rows">
+      <div class="tk-row"><span>Purchase Price</span><span>&pound;${purchase.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Refurbishment</span><span>&pound;${refurb.toLocaleString()}</span></div>
+      <div class="tk-row"><span>SDLT (inc. 5% surcharge)</span><span>&pound;${sdlt.total.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Bridging Finance (${months}m)</span><span>&pound;${bridgingCosts.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Selling Fees (1.5%)</span><span>&pound;${sellingFees.toLocaleString()}</span></div>
+      <div class="tk-row" style="font-weight:600"><span>Total Cost</span><span>&pound;${totalCosts.toLocaleString()}</span></div>
+      <div class="tk-row"><span>Target Sale Price</span><span>&pound;${salePrice.toLocaleString()}</span></div>
+      <div class="tk-row tk-row-highlight">
+        <span>Gross Profit</span>
+        <span class="${grossProfit >= 0 ? 'tk-profit-positive' : 'tk-profit-negative'}">&pound;${grossProfit.toLocaleString()}</span>
+      </div>
+      <div class="tk-row tk-row-total">
+        <span>Net Profit</span>
+        <span class="${netProfit >= 0 ? 'tk-profit-positive' : 'tk-profit-negative'}">&pound;${netProfit.toLocaleString()}</span>
+      </div>
+      <div class="tk-row">
+        <span>ROI</span>
+        <span class="${roi >= 0 ? 'tk-profit-positive' : 'tk-profit-negative'}" style="font-weight:700">${roi.toFixed(1)}%</span>
+      </div>
+      <div class="tk-row">
+        <span>Annualized ROI</span>
+        <span class="${annualizedRoi >= 0 ? 'tk-profit-positive' : 'tk-profit-negative'}" style="font-weight:700">${annualizedRoi.toFixed(1)}%</span>
+      </div>
+    </div>
+    <div class="tk-result-cta">
+      <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+        Finance the Flip with Lendlord
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  `;
 }

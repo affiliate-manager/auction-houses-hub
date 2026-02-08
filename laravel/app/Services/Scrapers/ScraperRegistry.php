@@ -23,6 +23,7 @@ class ScraperRegistry
         73  => JohnPyeScraper::class,          // John Pye
         96  => NetworkAuctionsScraper::class,  // Network Auctions
         100 => PattinsonScraper::class,        // Pattinson
+        999 => LotuScraper::class,             // Lotu.uk (Aggregator)
     ];
 
     /**

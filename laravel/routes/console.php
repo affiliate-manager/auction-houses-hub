@@ -19,6 +19,13 @@ Schedule::command('lots:scrape')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scraper.log'));
 
+// Scrape Lotu.uk aggregator every 6 hours (covers all auction houses)
+Schedule::command('lots:scrape --house=999 --sync')
+    ->everySixHours()
+    ->timezone('Europe/London')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/lotu-scraper.log'));
+
 // Mark past auctions as completed
 Schedule::command('lots:update-status')
     ->dailyAt('00:30')
