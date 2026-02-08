@@ -168,8 +168,32 @@ function applyFilters() {
     return true;
   });
 
+  // Sort: houses with upcoming events or recent results appear first
+  filteredHouses.sort((a, b) => {
+    const aScore = getHouseDataScore(a);
+    const bScore = getHouseDataScore(b);
+    return bScore - aScore;
+  });
+
   renderCards(filteredHouses);
   updateResultsCount(filteredHouses.length);
+}
+
+function getHouseDataScore(h) {
+  let score = 0;
+  if (typeof AUCTION_EVENTS !== 'undefined') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const hasEvents = AUCTION_EVENTS.some(e =>
+      (e.houseId === h.id || e.house === h.name) && new Date(e.date + 'T00:00:00') >= today
+    );
+    if (hasEvents) score += 2;
+  }
+  if (typeof AUCTION_RESULTS !== 'undefined') {
+    const hasResults = AUCTION_RESULTS.some(r => r.houseId === h.id || r.house === h.name);
+    if (hasResults) score += 1;
+  }
+  return score;
 }
 
 function clearAllFilters() {
