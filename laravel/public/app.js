@@ -58,8 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initFinanceTooltip();
   // Live auction lots
   initLiveLots();
-  // Budget matcher
-  initBudgetMatcher();
   // Investor toolkit
   initInvestorToolkit();
 });
@@ -1820,124 +1818,6 @@ function renderLiveLots(append) {
       </div>
     </div>`;
   }).join('');
-}
-
-// ===========================
-// Budget Property Matcher
-// ===========================
-function initBudgetMatcher() {
-  // Tab switching
-  document.querySelectorAll('.bm-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.bm-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.bm-tab-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      const target = tab.dataset.bmTab;
-      const panel = document.getElementById(target === 'preapproval' ? 'bmPreapproval' : 'bmCalculate');
-      if (panel) panel.classList.add('active');
-    });
-  });
-
-  // Pre-approval button
-  const goPreapproval = document.getElementById('bmGoPreapproval');
-  if (goPreapproval) {
-    goPreapproval.addEventListener('click', () => {
-      const loanAmount = parseInt(document.getElementById('bmLoanAmount')?.value) || 0;
-      if (loanAmount < 10000) { alert('Please enter a loan amount of at least \u00a310,000'); return; }
-      // With 70% LTV, max property price = loan / 0.7
-      const maxPrice = Math.round(loanAmount / 0.7);
-      runBudgetMatch(maxPrice, loanAmount);
-    });
-  }
-
-  // Calculate button
-  const goCalculate = document.getElementById('bmGoCalculate');
-  if (goCalculate) {
-    goCalculate.addEventListener('click', () => {
-      const deposit = parseInt(document.getElementById('bmDeposit')?.value) || 0;
-      const targetValue = parseInt(document.getElementById('bmTargetValue')?.value) || 0;
-      if (deposit < 5000) { alert('Please enter a deposit of at least \u00a35,000'); return; }
-      // Calculate: with 70% LTV, max loan = 70% of target. Budget = deposit + loan
-      const loanAmount = targetValue > 0 ? Math.round(targetValue * 0.7) : Math.round(deposit / 0.3 * 0.7);
-      const maxPrice = deposit + loanAmount;
-      runBudgetMatch(maxPrice, loanAmount);
-    });
-  }
-
-  // Restore last budget from localStorage
-  const savedBudget = localStorage.getItem('budgetMatcherLast');
-  if (savedBudget) {
-    try {
-      const { maxPrice, loanAmount } = JSON.parse(savedBudget);
-      if (maxPrice > 0) runBudgetMatch(maxPrice, loanAmount);
-    } catch(e) {}
-  }
-}
-
-function runBudgetMatch(maxPrice, loanAmount) {
-  const resultsDiv = document.getElementById('bmResults');
-  if (!resultsDiv) return;
-
-  // Save for return visits
-  localStorage.setItem('budgetMatcherLast', JSON.stringify({ maxPrice, loanAmount }));
-
-  const costs = calcBridgingCosts(maxPrice);
-
-  // Find matching lots
-  const matchingLots = liveLots
-    .filter(lot => lot.guidePrice > 0 && lot.guidePrice <= maxPrice)
-    .sort((a, b) => b.guidePrice - a.guidePrice)
-    .slice(0, 4);
-
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  let matchHtml = '';
-  if (matchingLots.length > 0) {
-    matchHtml = `
-      <h4 style="font-size:0.88rem;font-weight:700;margin-bottom:10px;color:var(--primary-dark)">Matching Lots (${matchingLots.length})</h4>
-      <div class="bm-match-grid">
-        ${matchingLots.map(lot => {
-          const price = lot.guidePrice > 0 ? `&pound;${lot.guidePrice.toLocaleString()}` : 'POA';
-          let dateStr = '';
-          if (lot.auctionDate) {
-            const d = new Date(lot.auctionDate + 'T00:00:00');
-            dateStr = `${d.getDate()} ${monthNames[d.getMonth()]}`;
-          }
-          return `<div class="bm-match-card">
-            <div class="bm-match-title">${lot.title}</div>
-            <div class="bm-match-meta">${lot.region}${dateStr ? ' - ' + dateStr : ''}</div>
-            <div class="bm-match-price">${price}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    `;
-  } else {
-    matchHtml = `<p style="font-size:0.85rem;color:var(--text-light);text-align:center;padding:12px 0">No lots currently match this budget. Try increasing your budget or check back soon.</p>`;
-  }
-
-  resultsDiv.innerHTML = `
-    <div class="bm-summary">
-      <div class="bm-summary-card">
-        <span class="bm-summary-value">&pound;${maxPrice.toLocaleString()}</span>
-        <span class="bm-summary-label">Max Property Price</span>
-      </div>
-      <div class="bm-summary-card">
-        <span class="bm-summary-value">&pound;${loanAmount.toLocaleString()}</span>
-        <span class="bm-summary-label">Bridging Loan</span>
-      </div>
-      <div class="bm-summary-card">
-        <span class="bm-summary-value">&pound;${costs.monthlyInterest.toLocaleString()}/mo</span>
-        <span class="bm-summary-label">Est. Interest</span>
-      </div>
-    </div>
-    ${matchHtml}
-    <div class="bm-match-cta">
-      <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
-        Get Your Exact Quote from Lendlord
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-  `;
 }
 
 // ===========================
