@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK Auction Houses Hub | Property Investor's Directory</title>
+  <meta name="description" content="The UK's most comprehensive auction house directory for property investors. Browse 100+ auction houses filtered by specialisation, region, format and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <span class="top-bar-text">The UK's Most Comprehensive Auction House Directory for Property Investors</span>
+      <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="top-bar-cta" target="_blank" rel="noopener">
+        Get Auction Finance <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="https://lendlord.io/?utm_source=Lendlord&utm_campaign=auction_house" class="logo" target="_blank" rel="noopener">
+        <img src="https://lendlord.io/wp-content/uploads/2022/07/LendlordL-Logo.svg" alt="Lendlord" class="logo-img">
+        <span class="logo-title">UK Auction Houses Hub</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#how-it-works" class="nav-link">Auction Finance</a>
+        <a href="#directory" class="nav-link">Directory</a>
+        <a href="#calendar" class="nav-link">Auction Calendar</a>
+        <a href="#auction-tips" class="nav-link">Investor Tips</a>
+      </nav>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero unified-header" id="how-it-works">
+    <div class="hero-bg"></div>
+    <div class="container hero-inner">
+      <h1 class="hero-title">UK Auction Houses<br>for Property Investors</h1>
+      <div class="hero-actions">
+        <a href="#directory" class="btn btn-primary btn-lg">Browse Directory</a>
+        <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-lg" target="_blank" rel="noopener">
+          Pre-Approve Your Finance
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+        </a>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Get Pre-Approved</h3>
+          <p>5-min application. Know your budget before auction day.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Win at Auction</h3>
+          <p>Bid with confidence. Pay 10% deposit, exchange immediately.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Complete with Bridging</h3>
+          <p>Purchase completes within 28 days. Fast and flexible.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <h3>Refinance or Sell</h3>
+          <p>Refinance onto a mortgage or sell for profit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== -->
+  <!-- 2. DIRECTORY -->
+  <!-- ==================== -->
+  <section class="directory" id="directory">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Auction House Directory</h2>
+        <p class="section-desc">Filter and compare UK auction houses across six key investment parameters</p>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="filters-wrapper">
+        <div class="search-bar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search auction houses by name..." autocomplete="off">
+          <button class="search-clear" id="searchClear" style="display:none">&times;</button>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label class="filter-label">Specialisation</label>
+            <select id="filterSpec" class="filter-select">
+              <option value="">All Types</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Mixed">Mixed Use</option>
+              <option value="Rural/Land">Rural & Land</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Region</label>
+            <select id="filterRegion" class="filter-select">
+              <option value="">All Regions</option>
+              <option value="National">National</option>
+              <option value="London">London</option>
+              <option value="South East">South East</option>
+              <option value="South West">South West</option>
+              <option value="East Anglia">East Anglia</option>
+              <option value="East Midlands">East Midlands</option>
+              <option value="West Midlands">West Midlands</option>
+              <option value="North West">North West</option>
+              <option value="North East">North East</option>
+              <option value="Yorkshire">Yorkshire & Humber</option>
+              <option value="Wales">Wales</option>
+              <option value="Scotland">Scotland</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Auction Format</label>
+            <select id="filterFormat" class="filter-select">
+              <option value="">All Formats</option>
+              <option value="Room">Traditional Room</option>
+              <option value="Online">Online</option>
+              <option value="Hybrid">Hybrid (Room + Online)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Data Transparency</label>
+            <select id="filterData" class="filter-select">
+              <option value="">Any Rating</option>
+              <option value="high">High (4-5 Stars)</option>
+              <option value="medium">Medium (3 Stars)</option>
+              <option value="low">Low (1-2 Stars)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Lot Condition</label>
+            <select id="filterCondition" class="filter-select">
+              <option value="">Any Condition</option>
+              <option value="Modern">Modern / Move-in Ready</option>
+              <option value="Refurbishment">Refurbishment Projects</option>
+              <option value="Development">Development Sites</option>
+              <option value="Derelict">Derelict / Opportunity</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Vendor Type</label>
+            <select id="filterVendor" class="filter-select">
+              <option value="">All Vendors</option>
+              <option value="Lender">Repossession / Lender</option>
+              <option value="Probate">Probate / Executor</option>
+              <option value="Corporate">Corporate / Developer</option>
+              <option value="Private">Private Vendor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="btn btn-outline btn-sm" id="clearFilters">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            Clear Filters
+          </button>
+          <div class="results-count" id="resultsCount">Showing 100 auction houses</div>
+          <div class="view-toggle">
+            <button class="view-btn active" id="gridViewBtn" title="Grid View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button class="view-btn" id="listViewBtn" title="List View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div class="results-grid" id="resultsGrid">
+        <!-- Cards rendered by JavaScript -->
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results" id="noResults" style="display:none">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M8 8l6 6M14 8l-6 6"/></svg>
+        <h3>No auction houses match your filters</h3>
+        <p>Try adjusting your filters or <button class="link-btn" id="clearFiltersAlt">clear all filters</button></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mid-page Finance CTA -->
+  <section class="mid-cta">
+    <div class="container mid-cta-inner">
+      <div class="mid-cta-content">
+        <h2>Ready to Bid with Confidence?</h2>
+        <p>Whether you're eyeing a residential refurb or a commercial investment lot, having bridging finance in place before auction day is the smart investor's edge. Get a decision in principle in minutes.</p>
+        <ul class="mid-cta-list">
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            Bridging loans from &pound;50k to &pound;25m
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            Completion in as little as 7 days
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            Residential, commercial &amp; mixed-use properties
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            5-minute online application
+          </li>
+        </ul>
+      </div>
+      <div class="mid-cta-action">
+        <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-xl" target="_blank" rel="noopener">
+          Apply for Bridging Finance
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+        </a>
+        <span class="mid-cta-note">Free, no-obligation application</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== -->
+  <!-- 3. AUCTION CALENDAR -->
+  <!-- ==================== -->
+  <section class="calendar-section" id="calendar">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">2026 Auction Calendar</h2>
+        <p class="section-desc">All confirmed property auction dates from our directory. Click any date to see scheduled auctions.</p>
+      </div>
+
+      <div class="calendar-controls">
+        <div class="calendar-nav">
+          <button class="cal-nav-btn" id="calPrev">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h3 class="cal-month-title" id="calMonthTitle">February 2026</h3>
+          <button class="cal-nav-btn" id="calNext">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <div class="calendar-filters">
+          <select id="calFilterRegion" class="filter-select">
+            <option value="">All Regions</option>
+            <option value="National">National</option>
+            <option value="London">London</option>
+            <option value="South East">South East</option>
+            <option value="South West">South West</option>
+            <option value="East Anglia">East Anglia</option>
+            <option value="East Midlands">East Midlands</option>
+            <option value="West Midlands">West Midlands</option>
+            <option value="North West">North West</option>
+            <option value="North East">North East</option>
+            <option value="Yorkshire">Yorkshire</option>
+            <option value="Wales">Wales</option>
+            <option value="Scotland">Scotland</option>
+          </select>
+          <select id="calFilterHouse" class="filter-select">
+            <option value="">All Auction Houses</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="calendar-grid-wrapper">
+        <div class="cal-weekdays">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <div class="cal-event-panel" id="calEventPanel" style="display:none">
+        <div class="cal-event-panel-header">
+          <h4 id="calEventDate"></h4>
+          <button class="cal-event-close" id="calEventClose">&times;</button>
+        </div>
+        <div class="cal-event-list" id="calEventList">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="cal-event-cta">
+          <p>Bidding at one of these auctions?</p>
+          <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-accent btn-sm" target="_blank" rel="noopener">
+            Get Finance Pre-Approved
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Ongoing Online Auctioneers -->
+      <div class="cal-ongoing">
+        <h4>Ongoing Online Auctions</h4>
+        <p class="cal-ongoing-desc">These auction houses run continuous or weekly online auctions throughout the year:</p>
+        <div class="cal-ongoing-grid" id="calOngoingGrid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <p class="cal-disclaimer">Dates sourced from auction house websites in February 2026. Always verify dates directly with the auction house before planning to bid. Many regional and smaller auction houses announce dates closer to each event.</p>
+    </div>
+  </section>
+
+  <!-- ==================== -->
+  <!-- 4. INVESTOR TIPS -->
+  <!-- ==================== -->
+  <section class="tips-section" id="auction-tips">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Auction Investor Tips</h2>
+        <p class="section-desc">Key insights for making smart auction purchases</p>
+      </div>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><path d="M9 14l2 2 4-4"/></svg>
+          </div>
+          <h3>Always View the Legal Pack</h3>
+          <p>Before bidding, review the legal pack thoroughly. It contains the title deeds, special conditions, searches, and any issues. Instruct a solicitor before the auction, not after.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h3>Know Your Maximum Bid</h3>
+          <p>Calculate your maximum bid including all costs: buyer's premium, stamp duty, legal fees, refurbishment costs, and finance costs. Never exceed your number in the heat of bidding.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>Understand the Area</h3>
+          <p>Research comparable sales, rental yields, and local demand before bidding. A good price means nothing if the area doesn't support your exit strategy.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Have Finance Ready</h3>
+          <p>When the hammer falls, you're legally committed. Having a bridging loan pre-approved means you can bid knowing you can complete. Don't risk losing your deposit.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <h3>Watch Buyer's Premium</h3>
+          <p>Some auction houses charge 0%, others up to 4% + VAT on top of the hammer price. This can add thousands to your costs. Always factor this into your maximum bid.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <h3>Attend Before You Bid</h3>
+          <p>Visit a few auctions as an observer before committing money. Understand the pace, the atmosphere, and how experienced bidders operate. Online auctions also have preview periods.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="bottom-cta">
+    <div class="container bottom-cta-inner">
+      <h2>Don't Let Finance Hold You Back at Auction</h2>
+      <p>Join thousands of property investors who secure their auction finance before bidding day. Quick decisions, flexible terms, and fast completions.</p>
+      <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" class="btn btn-white btn-xl" target="_blank" rel="noopener">
+        Apply for Bridging Finance Now
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="https://lendlord.io/?utm_source=Lendlord&utm_campaign=auction_house" class="logo" target="_blank" rel="noopener">
+          <img src="https://lendlord.io/wp-content/uploads/2022/07/LendlordL-Logo.svg" alt="Lendlord" class="logo-img">
+          <div>
+            <span class="logo-title">UK Auction Houses Hub</span>
+            <span class="logo-sub">by Lendlord</span>
+          </div>
+        </a>
+        <p class="footer-desc">The UK's most comprehensive auction house directory for property investors. Data compiled from publicly available sources and should be verified independently before making investment decisions.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Directory</h4>
+          <a href="#directory">All Auction Houses</a>
+          <a href="#directory" onclick="document.getElementById('filterSpec').value='Residential';document.getElementById('filterSpec').dispatchEvent(new Event('change'))">Residential</a>
+          <a href="#directory" onclick="document.getElementById('filterSpec').value='Commercial';document.getElementById('filterSpec').dispatchEvent(new Event('change'))">Commercial</a>
+          <a href="#directory" onclick="document.getElementById('filterSpec').value='Rural/Land';document.getElementById('filterSpec').dispatchEvent(new Event('change'))">Land & Rural</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="#how-it-works">How Auction Finance Works</a>
+          <a href="#calendar">Auction Calendar</a>
+          <a href="#auction-tips">Investor Tips</a>
+          <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" target="_blank" rel="noopener">Apply for Bridging Finance</a>
+        </div>
+        <div class="footer-col">
+          <h4>Lendlord</h4>
+          <a href="https://www.lendlord.io" target="_blank" rel="noopener">Lendlord Platform</a>
+          <a href="https://app.lendlord.io/bridging-application?country=uk&utm_source=Lendlord&utm_campaign=auction_houses_hub" target="_blank" rel="noopener">Bridging Loans</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; 2026 Lendlord. All rights reserved. This directory is for informational purposes only. Always conduct your own due diligence.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div class="modal-content" id="modalContent">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Mini Calendar -->
+  <aside class="sidebar-calendar" id="sidebarCalendar">
+    <a href="#calendar" class="sidebar-cal-link">
+      <div class="sidebar-cal-heading">Auctions Calendar 2026</div>
+      <div class="sidebar-cal-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span class="sidebar-cal-title" id="sidebarCalTitle">Feb 2026</span>
+      </div>
+      <div class="sidebar-cal-weekdays">
+        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+      </div>
+      <div class="sidebar-cal-grid" id="sidebarCalGrid">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="sidebar-cal-upcoming" id="sidebarUpcoming">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="sidebar-cal-footer">
+        View Full Calendar
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+  </aside>
+
+  <!-- Back to Top Button -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script src="data.js"></script>
+  <script src="calendar-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
