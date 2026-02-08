@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalendar();
   // Sidebar mini calendar
   initSidebarCalendar();
+  // Event ticker
+  initEventTicker();
 });
 
 // ===========================
@@ -762,5 +764,60 @@ function setupSidebarVisibility() {
     if (window.scrollY < 300) {
       sidebarCalendar.classList.add('hidden');
     }
+  });
+}
+
+// ===========================
+// Event Ticker
+// ===========================
+function initEventTicker() {
+  const tickerContent = document.getElementById('tickerContent');
+  if (!tickerContent || typeof AUCTION_EVENTS === 'undefined') return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekLater = new Date(today);
+  weekLater.setDate(weekLater.getDate() + 7);
+
+  const upcoming = AUCTION_EVENTS
+    .filter(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      return d >= today && d <= weekLater;
+    })
+    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+  if (upcoming.length === 0) {
+    document.getElementById('eventTicker').style.display = 'none';
+    return;
+  }
+
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function buildItems(events) {
+    return events.map(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      const dateStr = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+      const typeClass = e.type.toLowerCase() === 'room' ? 'room' : 'online';
+      const name = e.house.length > 25 ? e.house.substring(0, 23) + '..' : e.house;
+      return `<div class="event-ticker-item">
+        <span class="event-ticker-date">${dateStr}</span>
+        <span class="event-ticker-type ${typeClass}">${e.type}</span>
+        <span>${name}</span>
+        <span style="opacity:0.5;font-size:0.75rem">${e.time} - ${e.region}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Duplicate items for seamless infinite scroll
+  const itemsHtml = buildItems(upcoming);
+  tickerContent.innerHTML = itemsHtml + itemsHtml;
+
+  // Adjust animation speed based on content width
+  requestAnimationFrame(() => {
+    const contentWidth = tickerContent.scrollWidth / 2;
+    const speed = 50; // pixels per second
+    const duration = contentWidth / speed;
+    tickerContent.style.animationDuration = duration + 's';
   });
 }

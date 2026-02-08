@@ -707,6 +707,100 @@ select { font-family: inherit; }
 }
 
 /* How It Works styles kept for backwards compat */
+
+/* ===========================
+   Event Ticker Bar
+   =========================== */
+.event-ticker {
+  display: flex;
+  align-items: center;
+  background: var(--primary-dark);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  height: 44px;
+}
+.event-ticker-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  background: rgba(0,0,0,0.2);
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+.event-ticker-track {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+.event-ticker-content {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+  white-space: nowrap;
+  animation: tickerScroll 60s linear infinite;
+  width: max-content;
+}
+.event-ticker-content:hover {
+  animation-play-state: paused;
+}
+.event-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  height: 100%;
+  cursor: default;
+  transition: color 0.2s;
+}
+.event-ticker-item:hover {
+  color: var(--white);
+}
+.event-ticker-date {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 0.78rem;
+}
+.event-ticker-type {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.event-ticker-type.room {
+  background: rgba(46,204,113,0.15);
+  color: #2ecc71;
+}
+.event-ticker-type.online {
+  background: rgba(52,152,219,0.15);
+  color: #3498db;
+}
+.event-ticker-separator {
+  color: rgba(255,255,255,0.2);
+  padding: 0 4px;
+}
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@media (max-width: 768px) {
+  .event-ticker-label { padding: 0 10px; font-size: 0.7rem; }
+  .event-ticker-item { padding: 0 16px; font-size: 0.75rem; }
+}
 .steps-grid {
   position: relative;
   display: grid;
