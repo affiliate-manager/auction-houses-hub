@@ -40,8 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupScrollHeader();
   // Calendar init
   initCalendar();
-  // Sidebar mini calendar
-  initSidebarCalendar();
   // Event ticker
   initEventTicker();
   // Recently viewed
@@ -124,7 +122,6 @@ function setupScrollHeader() {
     const scroll = window.scrollY;
     header.classList.toggle('scrolled', scroll > 10);
     if (backToTop) backToTop.classList.toggle('visible', scroll > 500);
-    if (sidebarCalendar) sidebarCalendar.classList.toggle('visible', scroll > 1500);
   });
   if (backToTop) {
     backToTop.addEventListener('click', () => {
@@ -845,123 +842,6 @@ function renderOngoingAuctioneers() {
     `;
   });
   calOngoingGrid.innerHTML = html;
-}
-
-// ===========================
-// Sidebar Mini Calendar
-// ===========================
-const sidebarCalendar = document.getElementById('sidebarCalendar');
-const sidebarCalGrid = document.getElementById('sidebarCalGrid');
-const sidebarCalTitle = document.getElementById('sidebarCalTitle');
-const sidebarUpcoming = document.getElementById('sidebarUpcoming');
-
-function initSidebarCalendar() {
-  if (!sidebarCalendar) return;
-  renderSidebarCalendar();
-}
-
-function renderSidebarCalendar() {
-  const now = new Date();
-  const year = 2026;
-  const month = (now.getFullYear() === 2026) ? now.getMonth() : 1; // default Feb if not 2026
-
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  sidebarCalTitle.textContent = `${months[month]} ${year}`;
-
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startDow = (firstDay.getDay() + 6) % 7;
-  const daysInMonth = lastDay.getDate();
-  const prevMonthLast = new Date(year, month, 0).getDate();
-
-  // Build event date set for this month
-  const eventDates = new Set();
-  AUCTION_EVENTS.forEach(e => {
-    const d = new Date(e.date + 'T00:00:00');
-    if (d.getFullYear() === year && d.getMonth() === month) {
-      eventDates.add(d.getDate());
-    }
-  });
-
-  const today = new Date();
-  const todayDate = (today.getFullYear() === year && today.getMonth() === month) ? today.getDate() : -1;
-
-  let html = '';
-
-  // Previous month filler
-  for (let i = startDow - 1; i >= 0; i--) {
-    html += `<span class="sc-day other">${prevMonthLast - i}</span>`;
-  }
-
-  // Current month
-  for (let d = 1; d <= daysInMonth; d++) {
-    let cls = 'sc-day';
-    if (d === todayDate) cls += ' today';
-    if (eventDates.has(d)) cls += ' has-event';
-    html += `<span class="${cls}">${d}</span>`;
-  }
-
-  // Next month filler
-  const totalCells = startDow + daysInMonth;
-  const remaining = (7 - (totalCells % 7)) % 7;
-  for (let d = 1; d <= remaining; d++) {
-    html += `<span class="sc-day other">${d}</span>`;
-  }
-
-  sidebarCalGrid.innerHTML = html;
-
-  // Render upcoming events (next 3)
-  renderSidebarUpcoming();
-}
-
-function renderSidebarUpcoming() {
-  const todayStr = new Date().toISOString().split('T')[0];
-  const upcoming = AUCTION_EVENTS
-    .filter(e => e.date >= todayStr)
-    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
-    .slice(0, 4);
-
-  if (upcoming.length === 0) {
-    sidebarUpcoming.innerHTML = '<div class="sidebar-upcoming-item" style="color:var(--text-light);font-style:italic">No upcoming auctions</div>';
-    return;
-  }
-
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let html = '';
-  upcoming.forEach(e => {
-    const d = new Date(e.date + 'T00:00:00');
-    const dateStr = `${d.getDate()} ${monthNames[d.getMonth()]}`;
-    const dotClass = e.type.toLowerCase();
-    const name = e.house.length > 20 ? e.house.substring(0, 18) + '..' : e.house;
-    html += `<div class="sidebar-upcoming-item"><span class="sc-dot ${dotClass}"></span><strong>${dateStr}</strong> ${name}</div>`;
-  });
-
-  sidebarUpcoming.innerHTML = html;
-}
-
-function setupSidebarVisibility() {
-  const calSection = document.getElementById('calendar');
-  if (!calSection || !sidebarCalendar) return;
-
-  // Show sidebar only when not viewing the calendar section
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        sidebarCalendar.classList.add('hidden');
-      } else {
-        sidebarCalendar.classList.remove('hidden');
-      }
-    });
-  }, { threshold: 0.1 });
-
-  observer.observe(calSection);
-
-  // Also hide at very top of page (hero area)
-  window.addEventListener('scroll', () => {
-    if (window.scrollY < 300) {
-      sidebarCalendar.classList.add('hidden');
-    }
-  });
 }
 
 // ===========================
