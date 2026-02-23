@@ -30,6 +30,8 @@ const header = document.getElementById('header');
 // State
 let currentView = 'grid';
 let filteredHouses = [...AUCTION_HOUSES];
+const DIR_PAGE_SIZE = 6;
+let dirVisibleCount = DIR_PAGE_SIZE;
 
 // ===========================
 // Initialization
@@ -104,6 +106,16 @@ function setupEventListeners() {
   // Clear filters
   clearFiltersBtn.addEventListener('click', clearAllFilters);
   clearFiltersAlt.addEventListener('click', clearAllFilters);
+
+  // Directory Show More
+  const dirShowMoreBtn = document.getElementById('directoryShowMoreBtn');
+  if (dirShowMoreBtn) {
+    dirShowMoreBtn.addEventListener('click', () => {
+      dirVisibleCount += DIR_PAGE_SIZE;
+      renderCards(filteredHouses);
+      updateResultsCount(filteredHouses.length);
+    });
+  }
 
   // View toggle
   gridViewBtn.addEventListener('click', () => setView('grid'));
@@ -220,13 +232,13 @@ function applyFilters() {
     return true;
   });
 
-  // Sort: houses with upcoming events or recent results appear first
   filteredHouses.sort((a, b) => {
     const aScore = getHouseDataScore(a);
     const bScore = getHouseDataScore(b);
     return bScore - aScore;
   });
 
+  dirVisibleCount = DIR_PAGE_SIZE;
   renderCards(filteredHouses);
   updateResultsCount(filteredHouses.length);
 }
@@ -267,8 +279,12 @@ function renderCards(houses) {
   resultsGrid.innerHTML = '';
   noResults.style.display = houses.length === 0 ? 'block' : 'none';
 
-  houses.forEach((house, index) => {
-    // Insert inline CTA every 15 cards
+  const showMoreEl = document.getElementById('directoryShowMore');
+  const showMoreCount = document.getElementById('directoryShowMoreCount');
+  const visible = houses.slice(0, dirVisibleCount);
+  const remaining = houses.length - visible.length;
+
+  visible.forEach((house, index) => {
     if (index > 0 && index % 15 === 0) {
       resultsGrid.appendChild(createInlineCTA(index));
     }
@@ -278,19 +294,27 @@ function renderCards(houses) {
     card.setAttribute('data-id', house.id);
     card.innerHTML = createCardHTML(house);
     card.addEventListener('click', (e) => {
-      // Don't open modal if clicking a button/link
       if (e.target.closest('a') || e.target.closest('button')) return;
       openModal(house);
     });
     resultsGrid.appendChild(card);
   });
 
-  // Add event listeners to card buttons
+  if (showMoreEl) {
+    if (remaining > 0) {
+      showMoreEl.style.display = 'block';
+      const next = Math.min(remaining, DIR_PAGE_SIZE);
+      showMoreCount.textContent = `Showing ${visible.length} of ${houses.length} auction houses`;
+      document.getElementById('directoryShowMoreBtn').textContent = `Show ${next} More Auction Houses`;
+    } else {
+      showMoreEl.style.display = 'none';
+    }
+  }
+
   resultsGrid.querySelectorAll('.card-visit-btn').forEach(btn => {
     btn.addEventListener('click', (e) => e.stopPropagation());
   });
 
-  // Start/restart countdown timers on cards
   startCountdownTimers();
 }
 
@@ -1072,14 +1096,26 @@ function initEventTicker() {
 // ===========================
 // Auction Results
 // ===========================
+const RES_PAGE_SIZE = 12;
+let resVisibleCount = RES_PAGE_SIZE;
+
 function initResults() {
   if (typeof AUCTION_RESULTS === 'undefined') return;
   const regionFilter = document.getElementById('resFilterRegion');
   const typeFilter = document.getElementById('resFilterType');
   if (!regionFilter || !typeFilter) return;
 
-  regionFilter.addEventListener('change', renderResults);
-  typeFilter.addEventListener('change', renderResults);
+  regionFilter.addEventListener('change', () => { resVisibleCount = RES_PAGE_SIZE; renderResults(); });
+  typeFilter.addEventListener('change', () => { resVisibleCount = RES_PAGE_SIZE; renderResults(); });
+
+  const resShowMoreBtn = document.getElementById('resShowMoreBtn');
+  if (resShowMoreBtn) {
+    resShowMoreBtn.addEventListener('click', () => {
+      resVisibleCount += RES_PAGE_SIZE;
+      renderResults();
+    });
+  }
+
   renderResults();
 }
 
@@ -1095,7 +1131,6 @@ function renderResults() {
   if (regionVal) filtered = filtered.filter(r => r.region === regionVal);
   if (typeVal) filtered = filtered.filter(r => r.type === typeVal);
 
-  // Calculate stats
   const total = filtered.length;
   const diffs = filtered.map(r => ((r.salePrice - r.guidePrice) / r.guidePrice) * 100);
   const avgDiff = total > 0 ? diffs.reduce((a, b) => a + b, 0) / total : 0;
@@ -1122,7 +1157,10 @@ function renderResults() {
     </div>
   `;
 
-  grid.innerHTML = filtered.map(r => {
+  const visible = filtered.slice(0, resVisibleCount);
+  const remaining = total - visible.length;
+
+  grid.innerHTML = visible.map(r => {
     const diff = ((r.salePrice - r.guidePrice) / r.guidePrice) * 100;
     const diffClass = diff >= 0 ? 'premium' : 'discount';
     const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(0) + '%';
@@ -1142,6 +1180,19 @@ function renderResults() {
       </button>
     </div>`;
   }).join('');
+
+  const showMoreEl = document.getElementById('resShowMore');
+  const showMoreCount = document.getElementById('resShowMoreCount');
+  if (showMoreEl) {
+    if (remaining > 0) {
+      showMoreEl.style.display = 'block';
+      const next = Math.min(remaining, RES_PAGE_SIZE);
+      showMoreCount.textContent = `Showing ${visible.length} of ${total} results`;
+      document.getElementById('resShowMoreBtn').textContent = `Show ${next} More Results`;
+    } else {
+      showMoreEl.style.display = 'none';
+    }
+  }
 }
 
 // ===========================
@@ -1473,12 +1524,14 @@ function initWeeklyDigest() {
 function initPriceMap() {
   const container = document.getElementById('priceMapGrid');
   const panel = document.getElementById('mapDetailsPanel');
+  const summaryBar = document.getElementById('mapSummaryBar');
+  const prompt = document.getElementById('mapPrompt');
   if (!container || !panel) return;
 
-  const regions = ['Scotland', 'North East', 'North West', 'Yorkshire', 'Wales', 'West Midlands', 'East Midlands', 'East Anglia', 'South West', 'London', 'South East'];
+  const regions = ['Scotland', 'North East', 'North West', 'Yorkshire', 'West Midlands', 'East Midlands', 'East Anglia', 'South West', 'London', 'South East'];
   const regionStats = {};
   regions.forEach(r => {
-    regionStats[r] = { name: r, avgGuide: 0, avgSale: 0, count: 0, avgPremium: 0, events: 0 };
+    regionStats[r] = { name: r, avgGuide: 0, avgSale: 0, count: 0, avgPremium: 0, events: 0, color: '' };
   });
 
   if (typeof AUCTION_RESULTS !== 'undefined') {
@@ -1502,6 +1555,7 @@ function initPriceMap() {
   }
 
   let minAvg = Infinity, maxAvg = 0;
+  let totalLots = 0, totalEvents = 0;
   regions.forEach(r => {
     const s = regionStats[r];
     if (s.count > 0) {
@@ -1510,8 +1564,37 @@ function initPriceMap() {
       s.avgPremium = ((s.avgSale - s.avgGuide) / s.avgGuide) * 100;
       if (s.avgGuide < minAvg) minAvg = s.avgGuide;
       if (s.avgGuide > maxAvg) maxAvg = s.avgGuide;
+      totalLots += s.count;
     }
+    totalEvents += s.events;
   });
+
+  const regionsWithData = regions.filter(r => regionStats[r].count > 0).length;
+
+  if (summaryBar) {
+    summaryBar.innerHTML = `
+      <div class="map-summary-item">
+        <span class="map-summary-value">${regionsWithData}</span>
+        <span class="map-summary-label">Regions Tracked</span>
+      </div>
+      <div class="map-summary-item">
+        <span class="map-summary-value">${totalLots}</span>
+        <span class="map-summary-label">Lots Analysed</span>
+      </div>
+      <div class="map-summary-item">
+        <span class="map-summary-value">&pound;${minAvg === Infinity ? '0' : minAvg.toLocaleString()}</span>
+        <span class="map-summary-label">Lowest Avg Guide</span>
+      </div>
+      <div class="map-summary-item">
+        <span class="map-summary-value">&pound;${maxAvg === 0 ? '0' : maxAvg.toLocaleString()}</span>
+        <span class="map-summary-label">Highest Avg Guide</span>
+      </div>
+      <div class="map-summary-item">
+        <span class="map-summary-value">${totalEvents}</span>
+        <span class="map-summary-label">Upcoming Auctions</span>
+      </div>
+    `;
+  }
 
   function getColor(avgGuide) {
     if (avgGuide === 0) return '#C5CDD8';
@@ -1532,78 +1615,113 @@ function initPriceMap() {
     }
   }
 
+  regions.forEach(r => { regionStats[r].color = getColor(regionStats[r].avgGuide); });
+
   container.innerHTML = regions.map(r => {
     const s = regionStats[r];
-    const color = getColor(s.avgGuide);
     const hasData = s.count > 0;
-    return `<div class="map-cell" data-map-region="${r}" style="background:${color}${hasData ? '' : ';opacity:0.5'}">
+    return `<div class="map-cell" data-map-region="${r}" style="background:${s.color}${hasData ? '' : ';opacity:0.45'}">
       <span class="map-cell-name">${r}</span>
       ${hasData ? `<span class="map-cell-price">&pound;${s.avgGuide.toLocaleString()}</span>` : '<span class="map-cell-price">No data</span>'}
     </div>`;
   }).join('');
 
   panel.innerHTML = `<div class="map-panel-placeholder">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-    <p>Click a region to see auction market details</p>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <p>Select a region on the map to see<br>detailed auction market insights</p>
   </div>`;
 
-  container.querySelectorAll('.map-cell').forEach(cell => {
-    cell.addEventListener('click', () => {
-      container.querySelectorAll('.map-cell').forEach(c => c.classList.remove('selected'));
-      cell.classList.add('selected');
+  function selectRegion(regionName) {
+    container.querySelectorAll('.map-cell').forEach(c => c.classList.remove('selected'));
+    const cell = container.querySelector(`[data-map-region="${regionName}"]`);
+    if (cell) cell.classList.add('selected');
+    if (prompt) prompt.classList.add('hidden');
 
-      const region = cell.dataset.mapRegion;
-      const s = regionStats[region];
+    const s = regionStats[regionName];
 
-      if (s.count === 0 && !s.events) {
-        panel.innerHTML = `<div class="map-panel-placeholder">
-          <p>No recent data for <strong>${region}</strong></p>
-          <a href="#directory" class="btn btn-outline btn-sm" onclick="document.getElementById('filterRegion').value='${region}';document.getElementById('filterRegion').dispatchEvent(new Event('change'))">
-            Browse ${region} Auction Houses
-          </a>
-        </div>`;
-        return;
-      }
+    if (s.count === 0 && !s.events) {
+      panel.innerHTML = `<div class="map-panel-placeholder">
+        <p>No recent data for <strong>${regionName}</strong></p>
+        <a href="#directory" class="btn btn-outline btn-sm" onclick="document.getElementById('filterRegion').value='${regionName}';document.getElementById('filterRegion').dispatchEvent(new Event('change'))">
+          Browse ${regionName} Auction Houses
+        </a>
+      </div>`;
+      return;
+    }
 
-      panel.innerHTML = `
-        <h4 class="map-panel-title">${region}</h4>
-        <div class="map-panel-stats">
-          ${s.count > 0 ? `
-          <div class="map-panel-stat">
-            <span class="map-panel-stat-label">Avg Guide Price</span>
-            <span class="map-panel-stat-value">&pound;${s.avgGuide.toLocaleString()}</span>
-          </div>
-          <div class="map-panel-stat">
-            <span class="map-panel-stat-label">Avg Sale Price</span>
-            <span class="map-panel-stat-value">&pound;${s.avgSale.toLocaleString()}</span>
-          </div>
-          <div class="map-panel-stat">
-            <span class="map-panel-stat-label">Avg Premium</span>
-            <span class="map-panel-stat-value ${s.avgPremium >= 0 ? 'positive' : 'negative'}">${s.avgPremium >= 0 ? '+' : ''}${s.avgPremium.toFixed(1)}%</span>
-          </div>
-          <div class="map-panel-stat">
-            <span class="map-panel-stat-label">Lots Tracked</span>
-            <span class="map-panel-stat-value">${s.count}</span>
-          </div>
-          ` : ''}
-          ${s.events ? `
-          <div class="map-panel-stat">
-            <span class="map-panel-stat-label">Upcoming Auctions</span>
-            <span class="map-panel-stat-value">${s.events}</span>
-          </div>
-          ` : ''}
+    const barMax = Math.max(s.avgGuide, s.avgSale) || 1;
+    const guideW = Math.round((s.avgGuide / barMax) * 100);
+    const saleW = Math.round((s.avgSale / barMax) * 100);
+
+    panel.innerHTML = `
+      <h4 class="map-panel-title">
+        <span class="map-region-dot" style="background:${s.color}"></span>
+        ${regionName}
+      </h4>
+      <div class="map-panel-stats">
+        ${s.count > 0 ? `
+        <div class="map-panel-stat">
+          <span class="map-panel-stat-label">Avg Guide Price</span>
+          <span class="map-panel-stat-value">&pound;${s.avgGuide.toLocaleString()}</span>
         </div>
-        <div class="map-panel-actions">
-          <a href="#directory" class="btn btn-outline btn-sm" onclick="document.getElementById('filterRegion').value='${region}';document.getElementById('filterRegion').dispatchEvent(new Event('change'))">
-            Browse ${region} Houses
-          </a>
-          <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
-            Finance in ${region}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
+        <div class="map-panel-stat">
+          <span class="map-panel-stat-label">Avg Sale Price</span>
+          <span class="map-panel-stat-value">&pound;${s.avgSale.toLocaleString()}</span>
         </div>
-      `;
+        <div class="map-panel-stat">
+          <span class="map-panel-stat-label">Avg Premium</span>
+          <span class="map-panel-stat-value ${s.avgPremium >= 0 ? 'positive' : 'negative'}">${s.avgPremium >= 0 ? '+' : ''}${s.avgPremium.toFixed(1)}%</span>
+        </div>
+        <div class="map-panel-stat">
+          <span class="map-panel-stat-label">Lots Tracked</span>
+          <span class="map-panel-stat-value">${s.count}</span>
+        </div>
+        ` : ''}
+        ${s.events ? `
+        <div class="map-panel-stat">
+          <span class="map-panel-stat-label">Upcoming Auctions</span>
+          <span class="map-panel-stat-value">${s.events}</span>
+        </div>
+        ` : ''}
+      </div>
+      ${s.count > 0 ? `
+      <div class="map-panel-bar-chart">
+        <div class="map-bar-row">
+          <span class="map-bar-label">Guide</span>
+          <div class="map-bar-track">
+            <div class="map-bar-fill guide" style="width:0%"
+                 data-target-width="${guideW}%">&pound;${s.avgGuide.toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="map-bar-row">
+          <span class="map-bar-label">Sale</span>
+          <div class="map-bar-track">
+            <div class="map-bar-fill sale" style="width:0%"
+                 data-target-width="${saleW}%">&pound;${s.avgSale.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+      <div class="map-panel-actions">
+        <a href="#directory" class="btn btn-outline btn-sm" onclick="document.getElementById('filterRegion').value='${regionName}';document.getElementById('filterRegion').dispatchEvent(new Event('change'))">
+          Browse ${regionName} Houses
+        </a>
+        <a href="${BRIDGING_URL}" target="_blank" rel="noopener" class="btn btn-accent btn-sm">
+          Get Finance
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    `;
+
+    requestAnimationFrame(() => {
+      panel.querySelectorAll('.map-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.targetWidth;
+      });
     });
+  }
+
+  container.querySelectorAll('.map-cell').forEach(cell => {
+    cell.addEventListener('click', () => selectRegion(cell.dataset.mapRegion));
   });
 
   const legend = document.getElementById('mapLegend');
@@ -1613,6 +1731,18 @@ function initPriceMap() {
       <div class="map-legend-bar"></div>
       <span class="map-legend-label">&pound;${maxAvg === 0 ? '0' : maxAvg.toLocaleString()}</span>
     `;
+  }
+
+  // Auto-select the region with the most lots
+  let hottestRegion = null, hottestCount = 0;
+  regions.forEach(r => {
+    if (regionStats[r].count > hottestCount) {
+      hottestCount = regionStats[r].count;
+      hottestRegion = r;
+    }
+  });
+  if (hottestRegion) {
+    setTimeout(() => selectRegion(hottestRegion), 600);
   }
 }
 
