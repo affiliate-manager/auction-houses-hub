@@ -3022,3 +3022,626 @@ select { font-family: inherit; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+
+/* ===========================
+   Enrichment Badges (on cards)
+   =========================== */
+.enr-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.enr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+/* EPC rating colors */
+.enr-epc { border: 1.5px solid currentColor; }
+.enr-epc-a { color: #00A651; background: #ECFDF5; }
+.enr-epc-b { color: #50B848; background: #F0FDF4; }
+.enr-epc-c { color: #6B8E23; background: #F7FEE7; }
+.enr-epc-d { color: #D4A017; background: #FFFBEB; }
+.enr-epc-e { color: #F7941D; background: #FFF7ED; }
+.enr-epc-f { color: #ED1C24; background: #FEF2F2; }
+.enr-epc-g { color: #BE1E2D; background: #FEF2F2; }
+
+/* Flood risk */
+.enr-flood { border: 1.5px solid currentColor; }
+.enr-flood-low, .enr-flood-very_low { color: var(--success); background: #ECFDF5; }
+.enr-flood-medium { color: var(--warning); background: #FFFBEB; }
+.enr-flood-high { color: var(--danger); background: #FEF2F2; }
+
+/* Crime level */
+.enr-crime { border: 1.5px solid currentColor; }
+.enr-crime-low { color: var(--success); background: #ECFDF5; }
+.enr-crime-medium { color: var(--warning); background: #FFFBEB; }
+.enr-crime-high { color: var(--danger); background: #FEF2F2; }
+
+/* Area sqft */
+.enr-sqft { color: var(--text-secondary); background: var(--bg-alt); border: 1px solid var(--border); }
+
+/* Price comparison */
+.enr-price-cmp { border: 1.5px solid currentColor; }
+.enr-price-below { color: var(--success); background: #ECFDF5; }
+.enr-price-above { color: var(--warning); background: #FFFBEB; }
+
+/* ===========================
+   Lot Detail Drawer
+   =========================== */
+.lot-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(11, 29, 58, 0.45);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.lot-drawer-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.lot-drawer {
+  width: 560px;
+  max-width: 100vw;
+  height: 100vh;
+  background: var(--white);
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.lot-drawer-overlay.active .lot-drawer {
+  transform: translateX(0);
+}
+
+.lot-drawer-close {
+  position: sticky;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  float: right;
+  margin: 12px 12px 0 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.lot-drawer-close:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.lot-drawer-content {
+  padding: 0 24px 32px;
+}
+
+/* Drawer header */
+.ld-header { margin-bottom: 20px; }
+
+.ld-hero-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.ld-hero-info {}
+
+.ld-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+}
+
+.ld-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.ld-address {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.ld-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--text-light);
+}
+
+.ld-meta span { white-space: nowrap; }
+
+/* Drawer tabs */
+.ld-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.ld-tab {
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-light);
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: var(--transition);
+}
+
+.ld-tab:hover { color: var(--text); }
+
+.ld-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Drawer panels */
+.ld-panel { display: none; }
+.ld-panel.active { display: block; }
+
+.ld-section {
+  margin-bottom: 24px;
+}
+
+.ld-section h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Facts grid */
+.ld-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.ld-fact {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.ld-fact-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.ld-fact-value {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Loading / empty states */
+.ld-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 0.88rem;
+}
+
+.ld-loading::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  animation: ldSpin 0.8s linear infinite;
+}
+
+@keyframes ldSpin {
+  to { transform: rotate(360deg); }
+}
+
+.ld-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 0.88rem;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+/* Drawer actions */
+.ld-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 24px;
+}
+
+.ld-actions .btn { flex: 1; text-align: center; justify-content: center; }
+
+/* ===========================
+   Location Tab
+   =========================== */
+.ld-map-container {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* Crime chart */
+.ld-crime-header { margin-bottom: 12px; }
+
+.ld-crime-chart {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.ld-donut {
+  width: 130px;
+  height: 130px;
+}
+
+.ld-crime-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.ld-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ld-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Flood box */
+.ld-flood-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1.5px solid;
+  font-size: 0.86rem;
+}
+
+.ld-flood-box strong { display: block; margin-bottom: 2px; }
+.ld-flood-box span { display: block; font-size: 0.78rem; color: var(--text-secondary); }
+
+.ld-flood-low { border-color: var(--success); background: #ECFDF5; }
+.ld-flood-low .ld-flood-icon { color: var(--success); }
+.ld-flood-medium { border-color: var(--warning); background: #FFFBEB; }
+.ld-flood-medium .ld-flood-icon { color: var(--warning); }
+.ld-flood-high { border-color: var(--danger); background: #FEF2F2; }
+.ld-flood-high .ld-flood-icon { color: var(--danger); }
+
+.ld-flood-warn {
+  color: var(--danger) !important;
+  font-weight: 600;
+}
+
+/* Amenities */
+.ld-amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.ld-amenity-card {
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.ld-amenity-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+}
+
+.ld-amenity-head strong { flex: 1; }
+
+.ld-amenity-count {
+  background: var(--primary);
+  color: var(--white);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.ld-amenity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  padding: 3px 0;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.ld-amenity-item:last-child { border-bottom: none; }
+
+.ld-amenity-dist {
+  font-weight: 600;
+  color: var(--text-light);
+  font-size: 0.72rem;
+}
+
+/* ===========================
+   Prices Tab
+   =========================== */
+.ld-price-comparison { margin-bottom: 16px; }
+
+.ld-price-bar-group { display: flex; flex-direction: column; gap: 10px; }
+
+.ld-price-bar-row {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.ld-bar-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.ld-bar-track {
+  height: 24px;
+  background: var(--bg-alt);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+}
+
+.ld-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.6s ease;
+}
+
+.ld-bar-guide { background: var(--primary); }
+.ld-bar-avg { background: var(--accent); }
+
+.ld-bar-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 80px;
+}
+
+.ld-price-verdict {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.ld-price-verdict.positive {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.ld-price-verdict.negative {
+  background: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+/* Table */
+.ld-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.ld-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.ld-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--bg-alt);
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+}
+
+.ld-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text);
+}
+
+.ld-table tr:last-child td { border-bottom: none; }
+.ld-table tr:hover td { background: var(--bg); }
+
+/* ===========================
+   Property Tab - EPC Bar
+   =========================== */
+.ld-epc-visual { margin-bottom: 16px; }
+
+.ld-epc-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ld-epc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+}
+
+.ld-epc-band {
+  padding: 3px 10px;
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.ld-epc-range {
+  font-weight: 400;
+  font-size: 0.66rem;
+  opacity: 0.8;
+}
+
+.ld-epc-marker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  background: var(--accent-light);
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.ld-epc-marker-pot {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.ld-epc-current {
+  border: 2px solid var(--primary-dark);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.ld-epc-potential .ld-epc-band {
+  border: 2px dashed #3B82F6;
+}
+
+/* ===========================
+   Mobile Responsive - Drawer
+   =========================== */
+@media (max-width: 640px) {
+  .lot-drawer {
+    width: 100vw;
+  }
+
+  .ld-hero-img {
+    height: 180px;
+    border-radius: 0;
+    margin: 0 -24px 16px;
+    width: calc(100% + 48px);
+  }
+
+  .ld-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ld-price-bar-row {
+    grid-template-columns: 80px 1fr auto;
+  }
+
+  .ld-amenity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ld-tabs {
+    gap: 0;
+  }
+
+  .ld-tab {
+    padding: 10px 12px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .ld-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .ld-price-bar-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .ld-bar-label { text-align: left; }
+}

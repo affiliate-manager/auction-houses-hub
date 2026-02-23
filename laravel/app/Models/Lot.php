@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Lot extends Model
 {
@@ -16,6 +17,8 @@ class Lot extends Model
         'address',
         'postcode',
         'region',
+        'latitude',
+        'longitude',
         'property_type',
         'lot_condition',
         'bedrooms',
@@ -36,7 +39,14 @@ class Lot extends Model
         'lot_number' => 'integer',
         'sale_price' => 'integer',
         'auction_date' => 'date:Y-m-d',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
+
+    public function enrichment(): HasOne
+    {
+        return $this->hasOne(LotEnrichment::class);
+    }
 
     /**
      * Get formatted guide price range.

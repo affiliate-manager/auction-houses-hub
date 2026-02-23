@@ -30,3 +30,10 @@ Schedule::command('lots:scrape --house=999 --sync')
 Schedule::command('lots:update-status')
     ->dailyAt('00:30')
     ->timezone('Europe/London');
+
+// Enrich lots with public API data (runs after scraping completes)
+Schedule::command('lots:enrich --limit=50')
+    ->dailyAt('07:00')
+    ->timezone('Europe/London')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/enrichment.log'));

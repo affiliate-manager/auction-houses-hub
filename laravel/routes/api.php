@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('lots')->group(function () {
-    Route::get('/', [LotController::class, 'index']);        // GET /api/lots
-    Route::get('/{lot}', [LotController::class, 'show']);    // GET /api/lots/{id}
+    Route::get('/', [LotController::class, 'index']);                    // GET /api/lots
+    Route::get('/{lot}', [LotController::class, 'show']);                // GET /api/lots/{id}
+    Route::get('/{lot}/enrichment', [LotController::class, 'enrichment']); // GET /api/lots/{id}/enrichment
 });
 
 Route::get('/stats', [StatsController::class, 'index']);     // GET /api/stats

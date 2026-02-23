@@ -1689,7 +1689,8 @@ async function fetchScrapedLots() {
       externalUrl: lot.external_url || null,
       houseId: lot.auction_house_id || 999,
       bedrooms: lot.bedrooms || null,
-      condition: lot.condition || lot.lot_condition || 'refurbishment'
+      condition: lot.condition || lot.lot_condition || 'refurbishment',
+      enrichment: lot.enrichment || null
     }));
     if (status) status.textContent = `${liveLots.length} lots found`;
     if (notice) notice.style.display = 'none';
@@ -1797,6 +1798,23 @@ function renderLiveLots(append) {
       ? `<img class="ll-card-img" src="${lot.imageUrl}" alt="${lot.title}" loading="lazy" onerror="this.style.display='none'">`
       : `<div class="ll-card-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-light)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>`;
 
+    const e = lot.enrichment;
+    let enrHtml = '';
+    if (e) {
+      const pills = [];
+      if (e.epc_rating) pills.push(`<span class="enr-pill enr-epc enr-epc-${e.epc_rating.toLowerCase()}">${e.epc_rating}</span>`);
+      if (e.flood_risk_level) {
+        const fl = {low:'Low',very_low:'V.Low',medium:'Med',high:'High'}[e.flood_risk_level] || e.flood_risk_level;
+        pills.push(`<span class="enr-pill enr-flood enr-flood-${e.flood_risk_level}">${fl}</span>`);
+      }
+      if (e.crime_total !== null && e.crime_total !== undefined) {
+        const cl = e.crime_total <= 30 ? 'low' : e.crime_total <= 80 ? 'medium' : 'high';
+        pills.push(`<span class="enr-pill enr-crime enr-crime-${cl}">${cl.charAt(0).toUpperCase()+cl.slice(1)}</span>`);
+      }
+      if (e.floor_area_sqm) pills.push(`<span class="enr-pill enr-sqft">${Math.round(e.floor_area_sqm * 10.764)} sqft</span>`);
+      if (pills.length) enrHtml = `<div class="enr-badges">${pills.join('')}</div>`;
+    }
+
     return `<div class="ll-card">
       ${imgHtml}
       <div class="ll-card-body">
@@ -1807,6 +1825,7 @@ function renderLiveLots(append) {
         </div>
         <div class="ll-card-title">${lot.title}</div>
         ${lot.address !== lot.title ? `<div class="ll-card-address">${lot.address}</div>` : ''}
+        ${enrHtml}
         <div class="ll-card-bottom">
           <span class="ll-card-price">${price}</span>
           <span class="ll-card-date">${dateStr ? `<strong>${dateStr}</strong>Auction Date` : ''}</span>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lot;
+use App\Models\LotEnrichment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -15,7 +16,7 @@ class LotController extends Controller
      *
      * Query params:
      *   region, property_type, condition, house_id, status,
-     *   price_min, price_max, bedrooms_min,
+     *   price_min, price_max, bedrooms_min, include_enrichment,
      *   sort (date_asc, date_desc, price_asc, price_desc, newest),
      *   page, per_page (default 20, max 100)
      */
@@ -25,6 +26,10 @@ class LotController extends Controller
 
         $data = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($request) {
             $query = Lot::query();
+
+            if ($request->boolean('include_enrichment')) {
+                $query->with('enrichment');
+            }
 
             // Filters
             if ($region = $request->input('region')) {
@@ -104,7 +109,82 @@ class LotController extends Controller
         $cacheKey = 'lot:' . $lot->id;
 
         $data = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($lot) {
+            $lot->load('enrichment');
             return $lot;
+        });
+
+        return response()->json($data);
+    }
+
+    /**
+     * GET /api/lots/{lot}/enrichment
+     */
+    public function enrichment(Lot $lot): JsonResponse
+    {
+        $cacheKey = 'lot_enrichment:' . $lot->id;
+
+        $data = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($lot) {
+            $enrichment = $lot->enrichment;
+
+            if (!$enrichment) {
+                return ['status' => 'not_enriched', 'data' => null];
+            }
+
+            $status = 'enriched';
+            if (!empty($enrichment->enrichment_errors_json)) {
+                $status = 'partial';
+            }
+
+            return [
+                'status' => $status,
+                'enriched_at' => $enrichment->enriched_at?->toIso8601String(),
+                'data' => [
+                    'location' => [
+                        'latitude' => $enrichment->latitude,
+                        'longitude' => $enrichment->longitude,
+                        'admin_district' => $enrichment->admin_district,
+                        'ward' => $enrichment->ward,
+                        'constituency' => $enrichment->parliamentary_constituency,
+                    ],
+                    'epc' => [
+                        'rating' => $enrichment->epc_rating,
+                        'score_current' => $enrichment->epc_score_current,
+                        'score_potential' => $enrichment->epc_score_potential,
+                        'floor_area_sqm' => $enrichment->floor_area_sqm,
+                        'floor_area_sqft' => $enrichment->floor_area_sqft,
+                        'built_form' => $enrichment->built_form,
+                        'heating_type' => $enrichment->heating_type,
+                        'wall_description' => $enrichment->wall_description,
+                        'roof_description' => $enrichment->roof_description,
+                    ],
+                    'crime' => [
+                        'total' => $enrichment->crime_total,
+                        'level' => $enrichment->crime_level,
+                        'burglary' => $enrichment->crime_burglary,
+                        'antisocial' => $enrichment->crime_antisocial,
+                        'violent' => $enrichment->crime_violent,
+                        'breakdown' => $enrichment->crime_breakdown_json,
+                    ],
+                    'flood' => [
+                        'risk_zone' => $enrichment->flood_risk_zone,
+                        'risk_level' => $enrichment->flood_risk_level,
+                        'level_label' => $enrichment->flood_level_label,
+                        'warnings_nearby' => $enrichment->flood_warnings_nearby,
+                    ],
+                    'land_registry' => [
+                        'avg_price' => $enrichment->land_reg_avg_price,
+                        'last_sale_price' => $enrichment->land_reg_last_sale_price,
+                        'last_sale_date' => $enrichment->land_reg_last_sale_date?->format('Y-m-d'),
+                        'transactions' => $enrichment->land_reg_transactions_json,
+                    ],
+                    'amenities' => [
+                        'stations_count' => $enrichment->nearby_stations_count,
+                        'schools_count' => $enrichment->nearby_schools_count,
+                        'supermarkets_count' => $enrichment->nearby_supermarkets_count,
+                        'details' => $enrichment->nearby_amenities_json,
+                    ],
+                ],
+            ];
         });
 
         return response()->json($data);
