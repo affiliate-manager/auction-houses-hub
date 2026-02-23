@@ -66,6 +66,25 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event Listeners
 // ===========================
 function setupEventListeners() {
+  // Hero search bar
+  const heroSearchInput = document.getElementById('heroSearchInput');
+  const heroSearchBtn = document.getElementById('heroSearchBtn');
+  if (heroSearchInput && heroSearchBtn) {
+    const doHeroSearch = () => {
+      const val = heroSearchInput.value.trim();
+      if (val) {
+        searchInput.value = val;
+        searchClear.style.display = 'block';
+        applyFilters();
+      }
+      document.getElementById('directory').scrollIntoView({ behavior: 'smooth' });
+    };
+    heroSearchBtn.addEventListener('click', doHeroSearch);
+    heroSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doHeroSearch();
+    });
+  }
+
   // Search
   searchInput.addEventListener('input', debounce(applyFilters, 200));
   searchInput.addEventListener('input', () => {
