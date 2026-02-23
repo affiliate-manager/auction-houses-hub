@@ -99,10 +99,12 @@ function setupEventListeners() {
     if (e.key === 'Escape') closeModal();
   });
 
-  // Mobile menu
+  // Mobile menu (product nav)
   mobileMenuBtn.addEventListener('click', () => {
     nav.classList.toggle('open');
     mobileMenuBtn.classList.toggle('active');
+    const globalNav = document.getElementById('llGlobalNav');
+    if (globalNav) globalNav.classList.remove('mobile-open');
   });
 
   // Close mobile menu on link click
@@ -112,6 +114,30 @@ function setupEventListeners() {
       mobileMenuBtn.classList.remove('active');
     });
   });
+
+  // Global nav mobile menu
+  const llGlobalMobileBtn = document.getElementById('llGlobalMobileBtn');
+  const llGlobalNav = document.getElementById('llGlobalNav');
+  if (llGlobalMobileBtn && llGlobalNav) {
+    llGlobalMobileBtn.addEventListener('click', () => {
+      llGlobalNav.classList.toggle('mobile-open');
+      nav.classList.remove('open');
+      mobileMenuBtn.classList.remove('active');
+    });
+
+    // Toggle dropdowns on mobile via click
+    llGlobalNav.querySelectorAll('.ll-has-dropdown').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+          e.preventDefault();
+          const dd = btn.closest('.ll-global-dropdown');
+          const isOpen = dd.classList.contains('open');
+          llGlobalNav.querySelectorAll('.ll-global-dropdown.open').forEach(d => d.classList.remove('open'));
+          if (!isOpen) dd.classList.add('open');
+        }
+      });
+    });
+  }
 }
 
 function setupScrollHeader() {
