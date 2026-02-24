@@ -78,15 +78,51 @@ function setupEventListeners() {
     const REGIONS = ['London','South East','South West','East Anglia','East Midlands','West Midlands','North West','North East','Yorkshire','Scotland'];
     const TYPES = ['Residential','Commercial','Land','Mixed'];
 
-    const doHeroSearch = (val) => {
+    const doHeroSearch = (val, type) => {
       val = val || heroSearchInput.value.trim();
       heroAC.classList.remove('open');
       if (val) {
-        searchInput.value = val;
-        searchClear.style.display = 'block';
+        if (type === 'region') {
+          searchInput.value = '';
+          searchClear.style.display = 'none';
+          const regionSelect = document.getElementById('filterRegion');
+          if (regionSelect) {
+            const opt = Array.from(regionSelect.options).find(o => o.value === val || o.textContent.trim() === val);
+            if (opt) regionSelect.value = opt.value;
+          }
+        } else if (type === 'type') {
+          searchInput.value = '';
+          searchClear.style.display = 'none';
+          const specSelect = document.getElementById('filterSpec');
+          if (specSelect) {
+            const opt = Array.from(specSelect.options).find(o => o.value === val || o.textContent.trim() === val);
+            if (opt) specSelect.value = opt.value;
+          }
+        } else {
+          searchInput.value = val;
+          searchClear.style.display = 'block';
+        }
         applyFilters();
       }
-      document.getElementById('directory').scrollIntoView({ behavior: 'smooth' });
+      const grid = document.getElementById('resultsGrid');
+      if (grid) {
+        const stickyNav = document.getElementById('stickyNavWrapper');
+        const offset = stickyNav ? stickyNav.offsetHeight + 16 : 80;
+        const top = grid.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+        setTimeout(() => {
+          const firstCard = grid.querySelector('.auction-card');
+          if (firstCard) {
+            firstCard.style.transition = 'box-shadow 0.3s, transform 0.3s';
+            firstCard.style.boxShadow = '0 0 0 3px var(--accent)';
+            firstCard.style.transform = 'translateY(-2px)';
+            setTimeout(() => {
+              firstCard.style.boxShadow = '';
+              firstCard.style.transform = '';
+            }, 1500);
+          }
+        }, 600);
+      }
     };
 
     function highlightMatch(text, query) {
@@ -170,7 +206,7 @@ function setupEventListeners() {
       heroAC.querySelectorAll('.hero-ac-item').forEach(item => {
         item.addEventListener('click', () => {
           heroSearchInput.value = item.dataset.value;
-          doHeroSearch(item.dataset.value);
+          doHeroSearch(item.dataset.value, item.dataset.type);
         });
       });
     }
@@ -195,7 +231,7 @@ function setupEventListeners() {
         e.preventDefault();
         if (acIndex >= 0 && items[acIndex]) {
           heroSearchInput.value = items[acIndex].dataset.value;
-          doHeroSearch(items[acIndex].dataset.value);
+          doHeroSearch(items[acIndex].dataset.value, items[acIndex].dataset.type);
         } else {
           doHeroSearch();
         }
