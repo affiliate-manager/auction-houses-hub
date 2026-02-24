@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalendar();
   // Event ticker
   initEventTicker();
+  // As Seen In marquee
+  initAsSeenIn();
   // Recently viewed
   renderRecentlyViewed();
   // Watchlist
@@ -72,7 +74,7 @@ function setupEventListeners() {
   const heroSearchInput = document.getElementById('heroSearchInput');
   const heroSearchBtn = document.getElementById('heroSearchBtn');
   const heroAC = document.getElementById('heroAutocomplete');
-  if (heroSearchInput && heroSearchBtn && heroAC) {
+  if (heroSearchInput && heroAC) {
     let acIndex = -1;
 
     const REGIONS = ['London','South East','South West','East Anglia','East Midlands','West Midlands','North West','North East','Yorkshire','Scotland'];
@@ -241,7 +243,7 @@ function setupEventListeners() {
       }
     });
 
-    heroSearchBtn.addEventListener('click', () => doHeroSearch());
+    if (heroSearchBtn) heroSearchBtn.addEventListener('click', () => doHeroSearch());
 
     heroSearchInput.addEventListener('focus', () => {
       if (heroSearchInput.value.trim().length >= 2) {
@@ -1261,6 +1263,13 @@ function initEventTicker() {
     const duration = contentWidth / speed;
     tickerContent.style.animationDuration = duration + 's';
   });
+}
+
+// ===========================
+// As Seen In
+// ===========================
+function initAsSeenIn() {
+  // Static strip - no animation needed
 }
 
 // ===========================
