@@ -296,6 +296,11 @@ select { font-family: inherit; }
   align-items: baseline;
   gap: 8px;
   min-width: 0;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.product-label:hover {
+  opacity: 0.7;
 }
 .product-name {
   font-family: var(--font-serif);
