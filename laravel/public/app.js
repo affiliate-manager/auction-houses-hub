@@ -68,12 +68,19 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event Listeners
 // ===========================
 function setupEventListeners() {
-  // Hero search bar
+  // Hero search bar with autocomplete
   const heroSearchInput = document.getElementById('heroSearchInput');
   const heroSearchBtn = document.getElementById('heroSearchBtn');
-  if (heroSearchInput && heroSearchBtn) {
-    const doHeroSearch = () => {
-      const val = heroSearchInput.value.trim();
+  const heroAC = document.getElementById('heroAutocomplete');
+  if (heroSearchInput && heroSearchBtn && heroAC) {
+    let acIndex = -1;
+
+    const REGIONS = ['London','South East','South West','East Anglia','East Midlands','West Midlands','North West','North East','Yorkshire','Scotland'];
+    const TYPES = ['Residential','Commercial','Land','Mixed'];
+
+    const doHeroSearch = (val) => {
+      val = val || heroSearchInput.value.trim();
+      heroAC.classList.remove('open');
       if (val) {
         searchInput.value = val;
         searchClear.style.display = 'block';
@@ -81,9 +88,136 @@ function setupEventListeners() {
       }
       document.getElementById('directory').scrollIntoView({ behavior: 'smooth' });
     };
-    heroSearchBtn.addEventListener('click', doHeroSearch);
+
+    function highlightMatch(text, query) {
+      if (!query) return text;
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if (idx === -1) return text;
+      return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + query.length) + '</mark>' + text.slice(idx + query.length);
+    }
+
+    function renderAutocomplete(query) {
+      if (!query || query.length < 2) {
+        heroAC.classList.remove('open');
+        return;
+      }
+      const q = query.toLowerCase();
+      let html = '';
+
+      const matchedHouses = AUCTION_HOUSES
+        .filter(h => h.name.toLowerCase().includes(q) || (h.area && h.area.toLowerCase().includes(q)))
+        .slice(0, 5);
+
+      const matchedRegions = REGIONS.filter(r => r.toLowerCase().includes(q));
+      const matchedTypes = TYPES.filter(t => t.toLowerCase().includes(q));
+
+      if (!matchedHouses.length && !matchedRegions.length && !matchedTypes.length) {
+        heroAC.innerHTML = '<div class="hero-ac-empty">No matches found - press Find to search anyway</div>';
+        heroAC.classList.add('open');
+        acIndex = -1;
+        return;
+      }
+
+      if (matchedHouses.length) {
+        html += '<div class="hero-ac-group">Auction Houses</div>';
+        matchedHouses.forEach(h => {
+          html += `<div class="hero-ac-item" data-value="${h.name}" data-type="house">
+            <div class="hero-ac-icon house">${h.name.charAt(0)}</div>
+            <div class="hero-ac-info">
+              <div class="hero-ac-name">${highlightMatch(h.name, query)}</div>
+              <div class="hero-ac-meta">${h.spec} - ${h.area || h.regions.join(', ')}</div>
+            </div>
+          </div>`;
+        });
+      }
+
+      if (matchedRegions.length) {
+        html += '<div class="hero-ac-group">Regions</div>';
+        matchedRegions.forEach(r => {
+          const count = AUCTION_HOUSES.filter(h => h.regions && h.regions.includes(r)).length;
+          html += `<div class="hero-ac-item" data-value="${r}" data-type="region">
+            <div class="hero-ac-icon region">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="hero-ac-info">
+              <div class="hero-ac-name">${highlightMatch(r, query)}</div>
+              <div class="hero-ac-meta">${count} auction house${count !== 1 ? 's' : ''}</div>
+            </div>
+          </div>`;
+        });
+      }
+
+      if (matchedTypes.length) {
+        html += '<div class="hero-ac-group">Property Types</div>';
+        matchedTypes.forEach(t => {
+          const count = AUCTION_HOUSES.filter(h => h.spec === t).length;
+          html += `<div class="hero-ac-item" data-value="${t}" data-type="type">
+            <div class="hero-ac-icon type">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="hero-ac-info">
+              <div class="hero-ac-name">${highlightMatch(t, query)}</div>
+              <div class="hero-ac-meta">${count} auction house${count !== 1 ? 's' : ''}</div>
+            </div>
+          </div>`;
+        });
+      }
+
+      heroAC.innerHTML = html;
+      heroAC.classList.add('open');
+      acIndex = -1;
+
+      heroAC.querySelectorAll('.hero-ac-item').forEach(item => {
+        item.addEventListener('click', () => {
+          heroSearchInput.value = item.dataset.value;
+          doHeroSearch(item.dataset.value);
+        });
+      });
+    }
+
+    heroSearchInput.addEventListener('input', () => {
+      renderAutocomplete(heroSearchInput.value.trim());
+    });
+
     heroSearchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') doHeroSearch();
+      const items = heroAC.querySelectorAll('.hero-ac-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        acIndex = Math.min(acIndex + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('active', i === acIndex));
+        if (items[acIndex]) items[acIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        acIndex = Math.max(acIndex - 1, -1);
+        items.forEach((el, i) => el.classList.toggle('active', i === acIndex));
+        if (acIndex >= 0 && items[acIndex]) items[acIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (acIndex >= 0 && items[acIndex]) {
+          heroSearchInput.value = items[acIndex].dataset.value;
+          doHeroSearch(items[acIndex].dataset.value);
+        } else {
+          doHeroSearch();
+        }
+      } else if (e.key === 'Escape') {
+        heroAC.classList.remove('open');
+        acIndex = -1;
+      }
+    });
+
+    heroSearchBtn.addEventListener('click', () => doHeroSearch());
+
+    heroSearchInput.addEventListener('focus', () => {
+      if (heroSearchInput.value.trim().length >= 2) {
+        renderAutocomplete(heroSearchInput.value.trim());
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.hero-search-wrap')) {
+        heroAC.classList.remove('open');
+        acIndex = -1;
+      }
     });
   }
 

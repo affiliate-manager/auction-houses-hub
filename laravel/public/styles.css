@@ -451,6 +451,10 @@ select { font-family: inherit; }
 /* Hero Search */
 .hero-search-wrap {
   margin-bottom: 20px;
+  position: relative;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .hero-search-bar {
   display: flex;
@@ -460,8 +464,6 @@ select { font-family: inherit; }
   padding: 6px 6px 6px 18px;
   gap: 10px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  max-width: 500px;
-  margin: 0 auto;
 }
 .hero-search-bar svg {
   flex-shrink: 0;
@@ -495,6 +497,103 @@ select { font-family: inherit; }
 }
 .hero-search-btn:hover {
   background: var(--accent-hover);
+}
+
+/* Hero Autocomplete */
+.hero-autocomplete {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  border: 1px solid var(--border);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 200;
+}
+.hero-autocomplete.open {
+  display: block;
+  animation: acFadeIn 0.15s ease;
+}
+@keyframes acFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-ac-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-light);
+}
+.hero-ac-item:last-child { border-bottom: none; }
+.hero-ac-item:hover,
+.hero-ac-item.active {
+  background: var(--bg);
+}
+.hero-ac-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.hero-ac-icon.house {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.hero-ac-icon.region {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+.hero-ac-icon.type {
+  background: #D1FAE5;
+  color: #065F46;
+}
+.hero-ac-info { flex: 1; min-width: 0; }
+.hero-ac-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hero-ac-name mark {
+  background: rgba(201,151,63,0.2);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.hero-ac-meta {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+.hero-ac-group {
+  padding: 6px 16px 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border-light);
+}
+.hero-ac-empty {
+  padding: 20px 16px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
 }
 
 /* Hero Trust Strip */
